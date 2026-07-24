@@ -16,6 +16,26 @@ export interface Messages {
   win: string;
   lose: string;
   language: string;
+  // Multiplayer / lobby
+  singlePlayer: string;
+  versus: string;
+  back: string;
+  mode: string;
+  modeRace: string;
+  modeCoop: string;
+  modeClaim: string;
+  createRoom: string;
+  shareHint: string;
+  copyLink: string;
+  copied: string;
+  connecting: string;
+  waitingOpponent: string;
+  opponentJoined: string;
+  startGame: string;
+  waitingStart: string;
+  matchReady: string;
+  opponentLeft: string;
+  connectionError: string;
 }
 
 export type Locale = 'en' | 'zh-TW' | 'zh-CN';

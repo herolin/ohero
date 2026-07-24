@@ -10,6 +10,26 @@ const zhCN: Messages = {
   win: '你赢了!🎉',
   lose: '游戏结束 💥',
   language: '语言',
+  // Multiplayer / lobby
+  singlePlayer: '单人',
+  versus: '对战',
+  back: '返回',
+  mode: '模式',
+  modeRace: '竞速',
+  modeCoop: '合作',
+  modeClaim: '抢解锁',
+  createRoom: '创建对战',
+  shareHint: '把这个链接发给对手:',
+  copyLink: '复制链接',
+  copied: '已复制!',
+  connecting: '连接中…',
+  waitingOpponent: '等待对手加入…',
+  opponentJoined: '对手已加入',
+  startGame: '开始',
+  waitingStart: '等待房主开始…',
+  matchReady: '双方已就绪 — 对战玩法将于后续阶段实现。',
+  opponentLeft: '对手已断线。',
+  connectionError: '连接发生错误。',
 };
 
 export default zhCN;

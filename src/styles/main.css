@@ -210,6 +210,92 @@ select {
   font-weight: 600;
 }
 
+/* Buttons */
+.versus,
+.primary {
+  font: inherit;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.versus:active,
+.primary:active {
+  transform: scale(0.97);
+}
+
+/* Lobby */
+.lobby .lobby-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-width: min(90vw, 320px);
+  padding: 0.5rem 0;
+}
+
+.lobby .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.lobby .share-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.lobby .share-input {
+  flex: 1;
+  font: inherit;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.lobby .copy-btn,
+.lobby .back {
+  font: inherit;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.lobby .back {
+  margin-top: 1rem;
+  align-self: flex-start;
+}
+
+.lobby .status {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.lobby .status.waiting {
+  color: var(--muted);
+}
+
+.lobby .status.connected,
+.lobby .status.ready {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.lobby .status.error {
+  color: #e53935;
+  font-weight: 600;
+}
+
 @media (max-width: 600px) {
   :root {
     --cell-size: 26px;

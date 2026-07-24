@@ -7,6 +7,8 @@ import { Game } from './game/gameState';
 import { randomSeed } from './game/rng';
 import { renderBoard, statusFace } from './ui/render';
 import { bindBoardInput } from './ui/input';
+import { Lobby } from './ui/lobby';
+import { getRoomFromLocation } from './multiplayer/room';
 import {
   t,
   getLocale,
@@ -36,8 +38,12 @@ class MinesweeperApp {
   private readonly difficultyLabel: HTMLElement;
   private readonly languageSelect: HTMLSelectElement;
   private readonly languageLabel: HTMLElement;
+  private readonly versusBtn: HTMLButtonElement;
 
-  constructor(root: HTMLElement) {
+  constructor(
+    root: HTMLElement,
+    private readonly onVersus: () => void,
+  ) {
     root.innerHTML = `
       <div class="app">
         <header>
@@ -51,6 +57,7 @@ class MinesweeperApp {
               <span class="language-label"></span>
               <select class="language"></select>
             </label>
+            <button class="versus" type="button"></button>
           </div>
         </header>
         <div class="statusbar">
@@ -73,6 +80,7 @@ class MinesweeperApp {
     this.difficultyLabel = this.must('.difficulty-label');
     this.languageSelect = this.must('.language');
     this.languageLabel = this.must('.language-label');
+    this.versusBtn = this.must('.versus');
 
     this.game = new Game(DIFFICULTIES[this.difficulty], randomSeed());
 
@@ -126,6 +134,7 @@ class MinesweeperApp {
       setLocale(this.languageSelect.value as Locale);
     });
     this.resetBtn.addEventListener('click', () => this.newGame());
+    this.versusBtn.addEventListener('click', () => this.onVersus());
   }
 
   /** Re-apply all translated static text (called on locale change). */
@@ -133,6 +142,7 @@ class MinesweeperApp {
     this.titleEl.textContent = t('appTitle');
     this.difficultyLabel.textContent = t('difficulty');
     this.languageLabel.textContent = t('language');
+    this.versusBtn.textContent = t('versus');
     document.title = t('appTitle');
     // Difficulty option labels are locale-dependent; rebuild them.
     this.buildDifficultyOptions();
@@ -203,5 +213,28 @@ class MinesweeperApp {
   }
 }
 
+// ---- Top-level routing: single-player vs. multiplayer lobby ----
+
+function openSinglePlayer(root: HTMLElement): void {
+  new MinesweeperApp(root, () => openLobby(root, null));
+}
+
+function openLobby(root: HTMLElement, joinRoom: string | null): void {
+  new Lobby(
+    root,
+    { joinRoom },
+    {
+      onExit: () => openSinglePlayer(root),
+      onStart: () => {
+        // Stage 5–6 will hand off to the versus game view here.
+      },
+    },
+  );
+}
+
 const root = document.querySelector<HTMLDivElement>('#app');
-if (root) new MinesweeperApp(root);
+if (root) {
+  const room = getRoomFromLocation();
+  if (room) openLobby(root, room);
+  else openSinglePlayer(root);
+}
