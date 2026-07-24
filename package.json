@@ -1,0 +1,29 @@
+{
+  "name": "game1-bomb",
+  "version": "0.1.0",
+  "description": "Windows-style Minesweeper web game with real-time WebRTC multiplayer",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "minesweeper",
+    "game",
+    "webrtc",
+    "multiplayer",
+    "typescript"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "peerjs": "^1.5.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vite": "^6.0.3",
+    "vitest": "^2.1.8"
+  }
+}
