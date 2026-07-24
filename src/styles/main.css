@@ -1,0 +1,217 @@
+:root {
+  --bg: #eceff1;
+  --panel: #ffffff;
+  --text: #1a1a1a;
+  --muted: #607d8b;
+  --border: #b0bec5;
+  --cell: #cfd8dc;
+  --cell-hover: #c0ccd2;
+  --cell-revealed: #eceff1;
+  --accent: #1976d2;
+  --cell-size: 30px;
+
+  /* Classic Minesweeper number colours. */
+  --n1: #1976d2;
+  --n2: #388e3c;
+  --n3: #d32f2f;
+  --n4: #512da8;
+  --n5: #8d6e63;
+  --n6: #0097a7;
+  --n7: #212121;
+  --n8: #757575;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121417;
+    --panel: #1e2227;
+    --text: #eceff1;
+    --muted: #90a4ae;
+    --border: #37474f;
+    --cell: #37474f;
+    --cell-hover: #455a64;
+    --cell-revealed: #263238;
+    --accent: #64b5f6;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC",
+    "Noto Sans SC", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+  width: 100%;
+  max-width: max-content;
+  margin: clamp(0.5rem, 3vw, 2rem) auto;
+  padding: clamp(0.75rem, 2vw, 1.25rem);
+  background: var(--panel);
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+}
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+}
+
+.controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.controls label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.7rem;
+  color: var(--muted);
+  gap: 2px;
+}
+
+select {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+}
+
+.statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+  background: var(--bg);
+  border-radius: 8px;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.1rem;
+}
+
+.statusbar .counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 4.5rem;
+}
+
+.statusbar .timer {
+  justify-content: flex-end;
+}
+
+.reset {
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  cursor: pointer;
+}
+
+.reset:active {
+  transform: scale(0.95);
+}
+
+.board-wrap {
+  overflow: auto;
+  max-width: 92vw;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--cell-size));
+  gap: 2px;
+  margin: 0 auto;
+  width: max-content;
+  touch-action: manipulation;
+}
+
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--cell);
+  color: transparent;
+  font-size: calc(var(--cell-size) * 0.55);
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (hover: hover) {
+  .cell:not(.revealed):hover {
+    background: var(--cell-hover);
+  }
+}
+
+.cell.flagged {
+  color: initial;
+}
+
+.cell.revealed {
+  background: var(--cell-revealed);
+  border-color: var(--border);
+  cursor: default;
+  color: var(--text);
+}
+
+.cell.revealed[data-n="1"] { color: var(--n1); }
+.cell.revealed[data-n="2"] { color: var(--n2); }
+.cell.revealed[data-n="3"] { color: var(--n3); }
+.cell.revealed[data-n="4"] { color: var(--n4); }
+.cell.revealed[data-n="5"] { color: var(--n5); }
+.cell.revealed[data-n="6"] { color: var(--n6); }
+.cell.revealed[data-n="7"] { color: var(--n7); }
+.cell.revealed[data-n="8"] { color: var(--n8); }
+
+.cell.mine {
+  color: initial;
+}
+
+.cell.exploded {
+  background: #e53935;
+}
+
+.message {
+  min-height: 1.5rem;
+  margin: 0.75rem 0 0;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --cell-size: 26px;
+  }
+}
