@@ -60,6 +60,12 @@ export class Connection {
     peer.on('error', (err) => handlers.onError?.(this.toError(err)));
   }
 
+  /** Replace the event handlers — used when handing the live connection
+   *  from the lobby to a gameplay view. */
+  setHandlers(handlers: ConnectionHandlers): void {
+    this.handlers = handlers;
+  }
+
   send(msg: Message): void {
     if (this.conn && this.conn.open) this.conn.send(msg);
   }

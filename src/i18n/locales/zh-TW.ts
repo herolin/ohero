@@ -30,6 +30,15 @@ const zhTW: Messages = {
   matchReady: '雙方已就緒 — 對戰玩法將於後續階段實作。',
   opponentLeft: '對手已斷線。',
   connectionError: '連線發生錯誤。',
+  // Race gameplay
+  you: '你',
+  opponent: '對手',
+  go: '開始!',
+  raceWin: '你贏了!🎉',
+  raceLose: '你輸了 💥',
+  rematch: '再來一局',
+  rematchWait: '等待對手…',
+  comingSoon: '此模式將於後續階段推出。',
 };
 
 export default zhTW;

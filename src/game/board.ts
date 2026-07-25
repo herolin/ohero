@@ -179,6 +179,22 @@ export class Board {
     return true;
   }
 
+  /** Number of safe (non-mine) cells that have been revealed. */
+  revealedSafeCount(): number {
+    let count = 0;
+    for (const row of this.cells) {
+      for (const cell of row) {
+        if (cell.isRevealed && !cell.isMine) count++;
+      }
+    }
+    return count;
+  }
+
+  /** Total number of safe (non-mine) cells on the board. */
+  safeCount(): number {
+    return this.rows * this.cols - this.mines;
+  }
+
   /** Count of cells revealed by a given owner (claim mode scoring). */
   ownedCount(owner: PlayerId): number {
     let count = 0;

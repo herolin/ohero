@@ -143,6 +143,27 @@ describe('Win / lose', () => {
   });
 });
 
+describe('Race progress counters', () => {
+  it('safeCount = total cells − mines', () => {
+    const board = newBoard('safe-count');
+    expect(board.safeCount()).toBe(9 * 9 - 10);
+  });
+
+  it('revealedSafeCount grows toward safeCount and equals it on a win', () => {
+    const board = newBoard('progress');
+    board.reveal({ row: 4, col: 4 });
+    expect(board.revealedSafeCount()).toBeGreaterThan(0);
+    expect(board.revealedSafeCount()).toBeLessThanOrEqual(board.safeCount());
+    for (let row = 0; row < board.rows; row++) {
+      for (let col = 0; col < board.cols; col++) {
+        if (!board.cells[row][col].isMine) board.reveal({ row, col });
+      }
+    }
+    expect(board.isWon()).toBe(true);
+    expect(board.revealedSafeCount()).toBe(board.safeCount());
+  });
+});
+
 describe('Claim-mode ownership', () => {
   it('assigns ownership to the revealing player', () => {
     const board = newBoard('own');
