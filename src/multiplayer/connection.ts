@@ -23,6 +23,8 @@ export class Connection {
   private peer: Peer | null = null;
   private conn: DataConnection | null = null;
   private handlers: ConnectionHandlers = {};
+  private manualClose = false;
+  private visibilityHandler?: () => void;
 
   /** Host: register under `roomId` and wait for a guest to connect. */
   hostRoom(roomId: string, handlers: ConnectionHandlers): void {
@@ -42,6 +44,7 @@ export class Connection {
       this.wire(conn);
     });
     peer.on('error', (err) => handlers.onError?.(this.toError(err)));
+    this.attachLifecycle(peer);
   }
 
   /** Guest: register, then dial the host's `roomId`. */
@@ -58,6 +61,39 @@ export class Connection {
       this.wire(conn);
     });
     peer.on('error', (err) => handlers.onError?.(this.toError(err)));
+    this.attachLifecycle(peer);
+  }
+
+  /**
+   * Keep the room alive across the signaling server dropping the peer — which
+   * happens when a mobile browser backgrounds the tab (e.g. while the host
+   * switches apps to share the link). Reconnect on 'disconnected' and again
+   * when the tab returns to the foreground.
+   */
+  private attachLifecycle(peer: Peer): void {
+    peer.on('disconnected', () => {
+      if (this.manualClose || peer.destroyed) return;
+      try {
+        peer.reconnect();
+      } catch {
+        /* ignore */
+      }
+    });
+
+    if (typeof document !== 'undefined' && !this.visibilityHandler) {
+      this.visibilityHandler = () => {
+        if (this.manualClose || document.visibilityState !== 'visible') return;
+        const p = this.peer;
+        if (p && p.disconnected && !p.destroyed) {
+          try {
+            p.reconnect();
+          } catch {
+            /* ignore */
+          }
+        }
+      };
+      document.addEventListener('visibilitychange', this.visibilityHandler);
+    }
   }
 
   /** Replace the event handlers — used when handing the live connection
@@ -75,6 +111,11 @@ export class Connection {
   }
 
   close(): void {
+    this.manualClose = true;
+    if (this.visibilityHandler && typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', this.visibilityHandler);
+      this.visibilityHandler = undefined;
+    }
     try {
       this.conn?.close();
     } catch {

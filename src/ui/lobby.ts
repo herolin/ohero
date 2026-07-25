@@ -159,6 +159,7 @@ export class Lobby {
         <input class="share-input" type="text" readonly />
         <button class="copy-btn" type="button"></button>
       </div>
+      <button class="primary share-btn" type="button" hidden></button>
       <p class="status waiting"></p>
     `;
     this.query<HTMLElement>('.hint').textContent = t('shareHint');
@@ -174,6 +175,20 @@ export class Lobby {
       }
       copyBtn.textContent = t('copied');
     });
+
+    // Native share sheet (mobile): stays a modal over the page, so the tab is
+    // less likely to be backgrounded than switching apps after a manual copy.
+    const shareBtn = this.query<HTMLButtonElement>('.share-btn');
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      shareBtn.hidden = false;
+      shareBtn.textContent = t('share');
+      shareBtn.addEventListener('click', () => {
+        navigator.share({ title: t('appTitle'), url: link }).catch(() => {
+          /* user dismissed the sheet */
+        });
+      });
+    }
+
     this.query<HTMLElement>('.status').textContent = t('waitingOpponent');
   }
 

@@ -22,6 +22,7 @@ const zhTW: Messages = {
   shareHint: '把這個連結傳給對手:',
   copyLink: '複製連結',
   copied: '已複製!',
+  share: '分享',
   connecting: '連線中…',
   waitingOpponent: '等待對手加入…',
   opponentJoined: '對手已加入',
