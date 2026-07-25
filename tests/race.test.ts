@@ -40,7 +40,9 @@ function link(a: FakeConnection, b: FakeConnection): void {
 }
 
 function clickCell(root: HTMLElement, row: number, col: number, cols: number): void {
-  const cells = root.querySelectorAll<HTMLElement>('.cell');
+  // Scope to the main board — the opponent mini-mirror also renders .cell nodes.
+  const grid = root.querySelector('.grid') as HTMLElement;
+  const cells = grid.querySelectorAll<HTMLElement>('.cell');
   const el = cells[row * cols + col];
   el.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
 }
@@ -102,6 +104,12 @@ describe('Race mode (two wired clients)', () => {
 
     // Guest should have seen the host reach 100% via progress messages.
     expect(guestRoot.querySelector('.opp-pct')?.textContent).toBe('100%');
+
+    // The opponent mini-mirror should reflect the host's revealed cells.
+    const miniRevealed = guestRoot
+      .querySelector('.mini-grid')!
+      .querySelectorAll('.cell.revealed').length;
+    expect(miniRevealed).toBeGreaterThan(0);
 
     host.destroy();
     guest.destroy();

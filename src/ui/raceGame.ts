@@ -1,15 +1,17 @@
 // Race mode: both players get an identical board (same seed) but play on
 // their own copy. First to clear all safe cells wins; hitting a mine loses
-// (and the opponent wins). Progress is streamed live; the host drives
-// rematches. Uses the shared Connection handed over from the lobby.
+// (and the opponent wins). Each side streams its reveals/flags so the other
+// can watch a read-only mini mirror of the opponent's board, plus a progress
+// bar. The host drives rematches.
 
-import type { Difficulty, Position } from '../game/types';
+import type { Difficulty, PlayerId, Position } from '../game/types';
 import { DIFFICULTIES } from '../game/types';
 import { Game } from '../game/gameState';
-import { randomSeed } from '../game/rng';
+import { Board } from '../game/board';
+import { createRng, randomSeed } from '../game/rng';
 import type { Connection } from '../multiplayer/connection';
-import type { Message, Role, StartMsg } from '../multiplayer/protocol';
-import { renderBoard } from './render';
+import type { Message, Role, RevealedCell, StartMsg } from '../multiplayer/protocol';
+import { renderBoard, renderBoardCells } from './render';
 import { bindBoardInput } from './input';
 import { t, onLocaleChange } from '../i18n';
 
@@ -23,15 +25,17 @@ export interface RaceOptions {
 }
 
 const COUNTDOWN_MS = 3000;
-const PROGRESS_THROTTLE_MS = 250;
+const PROGRESS_THROTTLE_MS = 200;
 
 export class RaceGame {
   private readonly connection: Connection;
   private readonly role: Role;
+  private readonly myId: PlayerId;
   private difficulty: Difficulty;
   private startAt: number;
 
   private game!: Game;
+  private oppBoard!: Board; // read-only mirror of the opponent's board
   private started = false;
   private decided = false;
   private lastProgressSent = 0;
@@ -43,6 +47,7 @@ export class RaceGame {
 
   private readonly root: HTMLElement;
   private readonly grid: HTMLElement;
+  private readonly miniGrid: HTMLElement;
   private readonly overlay: HTMLElement;
   private readonly countdownEl: HTMLElement;
   private readonly minesEl: HTMLElement;
@@ -50,14 +55,13 @@ export class RaceGame {
   private readonly resultBox: HTMLElement;
   private readonly resultText: HTMLElement;
   private readonly rematchBtn: HTMLButtonElement;
-  private readonly youPct: HTMLElement;
-  private readonly youFill: HTMLElement;
   private readonly oppPct: HTMLElement;
   private readonly oppFill: HTMLElement;
 
   constructor(root: HTMLElement, private readonly opts: RaceOptions) {
     this.connection = opts.connection;
     this.role = opts.role;
+    this.myId = opts.role === 'host' ? 'host' : 'guest';
     this.difficulty = opts.difficulty;
     this.startAt = opts.startAt;
     this.root = root;
@@ -68,17 +72,13 @@ export class RaceGame {
           <h1 class="title"></h1>
           <button class="back" type="button"></button>
         </header>
-        <div class="progress-panel">
-          <div class="pbar">
-            <span class="plabel you-label"></span>
-            <div class="bar"><div class="fill you-fill"></div></div>
-            <span class="ppct you-pct">0%</span>
+        <div class="opp-panel">
+          <div class="opp-head">
+            <span class="opp-label"></span>
+            <span class="opp-pct">0%</span>
           </div>
-          <div class="pbar">
-            <span class="plabel opp-label"></span>
-            <div class="bar"><div class="fill opp-fill"></div></div>
-            <span class="ppct opp-pct">0%</span>
-          </div>
+          <div class="bar"><div class="fill opp-fill"></div></div>
+          <div class="mini-wrap"><div class="mini-grid"></div></div>
         </div>
         <div class="statusbar">
           <span class="counter mines">💣 <span class="mines-count">0</span></span>
@@ -96,6 +96,7 @@ export class RaceGame {
     `;
 
     this.grid = this.q('.grid');
+    this.miniGrid = this.q('.mini-grid');
     this.overlay = this.q('.race-overlay');
     this.countdownEl = this.q('.countdown');
     this.minesEl = this.q('.mines-count');
@@ -103,8 +104,6 @@ export class RaceGame {
     this.resultBox = this.q('.result');
     this.resultText = this.q('.result-text');
     this.rematchBtn = this.q('.rematch');
-    this.youPct = this.q('.you-pct');
-    this.youFill = this.q('.you-fill');
     this.oppPct = this.q('.opp-pct');
     this.oppFill = this.q('.opp-fill');
 
@@ -136,7 +135,6 @@ export class RaceGame {
   private applyTexts(): void {
     this.q<HTMLElement>('.title').textContent = t('appTitle');
     this.q<HTMLElement>('.back').textContent = t('back');
-    this.q<HTMLElement>('.you-label').textContent = t('you');
     this.q<HTMLElement>('.opp-label').textContent = t('opponent');
     this.rematchBtn.textContent = t('rematch');
   }
@@ -146,16 +144,18 @@ export class RaceGame {
   private reset(seed: string, startAt: number): void {
     this.stopTimer();
     if (this.countdownId !== null) clearTimeout(this.countdownId);
-    this.game = new Game(DIFFICULTIES[this.difficulty], seed);
+    const config = DIFFICULTIES[this.difficulty];
+    this.game = new Game(config, seed);
+    this.oppBoard = new Board(config, createRng(seed)); // mirror; never revealed locally
     this.startAt = startAt;
     this.started = false;
     this.decided = false;
     this.elapsed = 0;
     this.lastProgressSent = 0;
     this.resultBox.hidden = true;
-    this.setProgress(this.youPct, this.youFill, 0);
-    this.setProgress(this.oppPct, this.oppFill, 0);
+    this.setProgress(0);
     this.render();
+    this.renderMini();
     this.overlay.classList.remove('go', 'hidden');
     this.runCountdown();
   }
@@ -177,9 +177,7 @@ export class RaceGame {
     this.started = true;
     this.countdownEl.textContent = t('go');
     this.overlay.classList.add('go');
-    this.countdownId = window.setTimeout(() => {
-      this.overlay.classList.add('hidden');
-    }, 600);
+    this.countdownId = window.setTimeout(() => this.overlay.classList.add('hidden'), 600);
     this.startTimer();
   }
 
@@ -187,7 +185,14 @@ export class RaceGame {
 
   private handleReveal(pos: Position): void {
     if (!this.started || this.decided) return;
-    this.game.reveal(pos);
+    const result = this.game.reveal(pos);
+    if (result.revealed.length > 0 || result.hitMine) {
+      const cells: RevealedCell[] = result.revealed.map((p) => {
+        const c = this.game.board.cells[p.row][p.col];
+        return { pos: p, isMine: c.isMine, adjacentMines: c.adjacentMines, owner: null };
+      });
+      this.connection.send({ type: 'reveal', cells, hitMine: result.hitMine, by: this.myId });
+    }
     this.render();
     this.reportProgress();
     if (this.game.status === 'won') this.finish('win');
@@ -196,6 +201,7 @@ export class RaceGame {
 
   private handleFlag(pos: Position): void {
     if (!this.started || this.decided) return;
+    // Flags stay local in race — the opponent mirror shows reveals only.
     this.game.toggleFlag(pos);
     this.render();
   }
@@ -204,7 +210,6 @@ export class RaceGame {
     if (this.decided) return;
     this.decided = true;
     this.stopTimer();
-    // Send the opponent THEIR result (the inverse of ours).
     this.connection.send({ type: 'gameover', result: outcome === 'win' ? 'lose' : 'win' });
     this.reportProgress(true);
     this.showResult(outcome);
@@ -214,12 +219,11 @@ export class RaceGame {
 
   private onMessage(msg: Message): void {
     switch (msg.type) {
+      case 'reveal':
+        this.applyOppReveal(msg.cells);
+        break;
       case 'progress':
-        this.setProgress(
-          this.oppPct,
-          this.oppFill,
-          msg.total > 0 ? msg.revealed / msg.total : 0,
-        );
+        this.setProgress(msg.total > 0 ? msg.revealed / msg.total : 0);
         break;
       case 'gameover':
         if (!this.decided) {
@@ -229,11 +233,9 @@ export class RaceGame {
         }
         break;
       case 'rematch':
-        // Only the host acts on a rematch request.
         if (this.role === 'host') this.startNewRound();
         break;
       case 'start':
-        // Guest receives the host's fresh round.
         if (this.role === 'guest') {
           this.difficulty = msg.difficulty;
           this.reset(msg.seed, msg.startAt);
@@ -242,6 +244,16 @@ export class RaceGame {
       default:
         break;
     }
+  }
+
+  private applyOppReveal(cells: RevealedCell[]): void {
+    for (const c of cells) {
+      const cell = this.oppBoard.cells[c.pos.row][c.pos.col];
+      cell.isRevealed = true;
+      cell.isMine = c.isMine;
+      cell.adjacentMines = c.adjacentMines;
+    }
+    this.renderMini();
   }
 
   private reportProgress(force = false): void {
@@ -293,19 +305,16 @@ export class RaceGame {
   private render(): void {
     renderBoard(this.grid, this.game);
     this.minesEl.textContent = String(this.game.minesRemaining());
-    this.updateMyProgress();
   }
 
-  private updateMyProgress(): void {
-    const total = this.game.board.safeCount();
-    const ratio = total > 0 ? this.game.board.revealedSafeCount() / total : 0;
-    this.setProgress(this.youPct, this.youFill, ratio);
+  private renderMini(): void {
+    renderBoardCells(this.miniGrid, this.oppBoard, {});
   }
 
-  private setProgress(pctEl: HTMLElement, fillEl: HTMLElement, ratio: number): void {
+  private setProgress(ratio: number): void {
     const pct = Math.round(Math.max(0, Math.min(1, ratio)) * 100);
-    pctEl.textContent = `${pct}%`;
-    fillEl.style.width = `${pct}%`;
+    this.oppPct.textContent = `${pct}%`;
+    this.oppFill.style.width = `${pct}%`;
   }
 
   private showResult(outcome: 'win' | 'lose'): void {
@@ -332,14 +341,9 @@ export class RaceGame {
 
   private exit(): void {
     this.connection.close();
-    this.onExitInternal();
-  }
-
-  private onExitInternal(): void {
     this.opts.onExit();
   }
 
-  /** Tear down timers and listeners (does not close the connection). */
   destroy(): void {
     this.stopTimer();
     if (this.countdownId !== null) clearTimeout(this.countdownId);

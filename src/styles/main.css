@@ -8,6 +8,8 @@
   --cell-hover: #c0ccd2;
   --cell-revealed: #eceff1;
   --accent: #1976d2;
+  --opp: #ef6c00;
+  --opp-ink: #6d3200;
   --cell-size: 30px;
 
   /* Classic Minesweeper number colours. */
@@ -32,6 +34,8 @@
     --cell-hover: #455a64;
     --cell-revealed: #263238;
     --accent: #64b5f6;
+    --opp: #ffb74d;
+    --opp-ink: #ffe0b2;
   }
 }
 
@@ -296,50 +300,82 @@ select {
   font-weight: 600;
 }
 
-/* Race mode */
-.progress-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+/* Race mode — opponent panel (read-only mirror + progress) */
+.opp-panel {
   margin-bottom: 0.75rem;
-}
-
-.pbar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-}
-
-.pbar .plabel {
-  min-width: 3.5rem;
-  color: var(--muted);
-}
-
-.pbar .bar {
-  flex: 1;
-  height: 12px;
+  padding: 0.5rem 0.6rem;
   background: var(--bg);
+  border-radius: 8px;
+}
+
+.opp-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.opp-head .opp-pct {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--opp);
+}
+
+.opp-panel .bar {
+  height: 10px;
+  background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 999px;
   overflow: hidden;
 }
 
-.pbar .fill {
+.opp-panel .fill {
   height: 100%;
   width: 0;
-  background: var(--accent);
+  background: var(--opp);
   transition: width 0.2s ease;
 }
 
-.pbar .opp-fill {
-  background: #ef6c00;
+/* Opponent's board mirror: read-only, small, distinctly coloured. */
+.mini-wrap {
+  overflow: auto;
+  max-width: 92vw;
+  margin-top: 0.5rem;
 }
 
-.pbar .ppct {
-  min-width: 2.5rem;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
+.mini-grid {
+  --mini-cell: 14px;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--mini-cell));
+  gap: 1px;
+  width: max-content;
+  margin: 0 auto;
+  pointer-events: none;
+}
+
+.mini-grid .cell {
+  width: var(--mini-cell);
+  height: var(--mini-cell);
+  border-radius: 2px;
+  font-size: calc(var(--mini-cell) * 0.62);
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--opp) 14%, var(--cell));
+}
+
+.mini-grid .cell.revealed {
+  background: color-mix(in srgb, var(--opp) 26%, var(--cell-revealed));
+  color: var(--opp-ink);
+}
+
+/* Opponent numbers use one neutral colour, not the classic per-number set. */
+.mini-grid .cell.revealed[data-n] {
+  color: var(--opp-ink);
+}
+
+.mini-grid .cell.mine {
+  color: initial;
 }
 
 .board-area {
