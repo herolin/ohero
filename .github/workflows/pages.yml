@@ -1,0 +1,74 @@
+name: Deploy to GitHub Pages
+
+# Deploy host for the game1-bomb project. Publishes two versions side by side
+# on one Pages site:
+#   /game1-bomb/      <- frozen stable (ohero "stable" branch)
+#   /game1-bomb-dev/  <- work in progress (ohero "main" branch)
+# GitHub Pages replaces the whole site each deploy, so both are built together.
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # ---- Dev version (this branch: main) -> /game1-bomb-dev/ ----
+      - name: Checkout dev (main)
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Build dev version
+        run: |
+          npm ci
+          npm run build
+          mkdir -p site/game1-bomb-dev
+          cp -r dist/. site/game1-bomb-dev/
+
+      # ---- Frozen stable version (stable branch) -> /game1-bomb/ ----
+      - name: Checkout stable
+        uses: actions/checkout@v4
+        with:
+          ref: stable
+          path: stable
+
+      - name: Build stable version
+        run: |
+          cd stable
+          npm ci
+          npm run build
+          mkdir -p ../site/game1-bomb
+          cp -r dist/. ../site/game1-bomb/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
