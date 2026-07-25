@@ -1,0 +1,79 @@
+# Reusable deploy workflow for a game repo.
+# Copy this file into a new game repo at: .github/workflows/deploy-game.yml
+#
+# It builds the game and publishes the static output into the public `ohero`
+# repo under games/<GAME_SLUG>/, which GitHub Pages serves at:
+#   https://herolin.github.io/ohero/games/<GAME_SLUG>/
+#
+# One-time setup in the game repo:
+#   1. Set GAME_SLUG below.
+#   2. Add a secret OHERO_DEPLOY_TOKEN — a fine-grained PAT with
+#      Contents: Read and write on herolin/ohero.
+#   3. Ensure `npm run build` outputs to dist/ and vite base is './'.
+
+name: Publish to ohero
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ohero-publish-${{ github.repository }}
+  cancel-in-progress: true
+
+env:
+  GAME_SLUG: CHANGE-ME # e.g. game1-bomb  ->  /ohero/games/game1-bomb/
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout game
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Checkout ohero
+        uses: actions/checkout@v4
+        with:
+          repository: herolin/ohero
+          token: ${{ secrets.OHERO_DEPLOY_TOKEN }}
+          path: ohero
+
+      - name: Sync build into games/${{ env.GAME_SLUG }}/
+        run: |
+          test "${GAME_SLUG}" != "CHANGE-ME" || { echo "Set GAME_SLUG first"; exit 1; }
+          dest="ohero/games/${GAME_SLUG}"
+          rm -rf "$dest"
+          mkdir -p "$dest"
+          cp -r dist/. "$dest/"
+
+      - name: Commit & push to ohero
+        working-directory: ohero
+        run: |
+          git config user.name "ohero-deploy"
+          git config user.email "deploy@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to publish."
+            exit 0
+          fi
+          git commit -m "deploy ${GAME_SLUG} @ ${GITHUB_SHA::7}"
+          # Another game may publish concurrently — rebase-retry the push.
+          for i in 1 2 3 4 5; do
+            if git pull --rebase --autostash origin main && git push; then
+              exit 0
+            fi
+            echo "push retry $i"; sleep 3
+          done
+          echo "Failed to push to ohero after retries"; exit 1
