@@ -28,6 +28,7 @@ export interface Messages {
   shareHint: string;
   copyLink: string;
   copied: string;
+  share: string;
   connecting: string;
   waitingOpponent: string;
   opponentJoined: string;

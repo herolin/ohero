@@ -22,6 +22,7 @@ const zhCN: Messages = {
   shareHint: '把这个链接发给对手:',
   copyLink: '复制链接',
   copied: '已复制!',
+  share: '分享',
   connecting: '连接中…',
   waitingOpponent: '等待对手加入…',
   opponentJoined: '对手已加入',

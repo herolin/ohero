@@ -22,6 +22,7 @@ const en: Messages = {
   shareHint: 'Share this link with your opponent:',
   copyLink: 'Copy link',
   copied: 'Copied!',
+  share: 'Share',
   connecting: 'Connecting…',
   waitingOpponent: 'Waiting for opponent to join…',
   opponentJoined: 'Opponent joined',
