@@ -39,6 +39,9 @@ const zhCN: Messages = {
   rematch: '再来一局',
   rematchWait: '等待对手…',
   comingSoon: '此模式将于后续阶段推出。',
+  coopWin: '你们一起赢了!🎉',
+  coopLose: '你们一起输了 💥',
+  draw: '平手 🤝',
 };
 
 export default zhCN;

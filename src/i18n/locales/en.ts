@@ -39,6 +39,9 @@ const en: Messages = {
   rematch: 'Rematch',
   rematchWait: 'Waiting for opponent…',
   comingSoon: 'This mode is coming in a later stage.',
+  coopWin: 'You both win! 🎉',
+  coopLose: 'You both lose 💥',
+  draw: "It's a draw 🤝",
 };
 
 export default en;

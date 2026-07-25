@@ -10,6 +10,7 @@ import { bindBoardInput } from './ui/input';
 import { Lobby } from './ui/lobby';
 import type { StartInfo } from './ui/lobby';
 import { RaceGame } from './ui/raceGame';
+import { SharedGame } from './ui/sharedGame';
 import type { Connection } from './multiplayer/connection';
 import { getRoomFromLocation, setRoomInLocation } from './multiplayer/room';
 import {
@@ -270,30 +271,18 @@ function openGame(root: HTMLElement, info: StartInfo, connection: Connection): v
       }),
     );
   } else {
-    // Co-op / claim (shared board) arrive in stage 6.
-    connection.close();
-    mount(comingSoonView(root, backToSingle));
+    // Shared board: co-op / claim.
+    mount(
+      new SharedGame(root, {
+        connection,
+        role: info.role,
+        mode: info.mode === 'coop' ? 'coop' : 'claim',
+        difficulty: info.difficulty,
+        seed: info.seed,
+        onExit: backToSingle,
+      }),
+    );
   }
-}
-
-/** Minimal placeholder view for modes not yet implemented. */
-function comingSoonView(root: HTMLElement, onExit: () => void): View {
-  root.innerHTML = `
-    <div class="app lobby">
-      <header><h1 class="title"></h1></header>
-      <div class="lobby-body"><p class="status"></p></div>
-      <button class="back" type="button"></button>
-    </div>
-  `;
-  const set = (): void => {
-    root.querySelector<HTMLElement>('.title')!.textContent = t('appTitle');
-    root.querySelector<HTMLElement>('.status')!.textContent = t('comingSoon');
-    root.querySelector<HTMLElement>('.back')!.textContent = t('back');
-  };
-  set();
-  const unsubscribe = onLocaleChange(set);
-  root.querySelector<HTMLButtonElement>('.back')!.addEventListener('click', onExit);
-  return { destroy: unsubscribe };
 }
 
 const root = document.querySelector<HTMLDivElement>('#app');

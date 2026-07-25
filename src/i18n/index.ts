@@ -45,6 +45,10 @@ export interface Messages {
   rematch: string;
   rematchWait: string;
   comingSoon: string;
+  // Shared-board modes
+  coopWin: string;
+  coopLose: string;
+  draw: string;
 }
 
 export type Locale = 'en' | 'zh-TW' | 'zh-CN';

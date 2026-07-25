@@ -66,6 +66,13 @@ export interface RevealMsg {
   by: PlayerId;
 }
 
+/** Host broadcast: a flag was toggled on the shared board. */
+export interface FlagMsg {
+  type: 'flag';
+  pos: Position;
+  flagged: boolean;
+}
+
 export interface ScoreMsg {
   type: 'score';
   scores: Record<PlayerId, number>;
@@ -87,5 +94,6 @@ export type Message =
   | ProgressMsg
   | IntentMsg
   | RevealMsg
+  | FlagMsg
   | ScoreMsg
   | GameOverMsg;
