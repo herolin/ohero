@@ -31,13 +31,6 @@ jobs:
           node-version: 20
           cache: npm
 
-      # Enables GitHub Pages automatically on first run (public repo),
-      # so no manual Settings → Pages toggle is needed.
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
       - name: Install dependencies
         run: npm ci
 
