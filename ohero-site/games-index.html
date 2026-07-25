@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>遊戲選單 · Games</title>
+    <style>
+      :root { color-scheme: light dark; --bg:#0f1216; --card:#1e2227; --text:#eceff1; --muted:#90a4ae; --accent:#64b5f6; }
+      @media (prefers-color-scheme: light) { :root { --bg:#eceff1; --card:#fff; --text:#1a1a1a; --muted:#607d8b; --accent:#1976d2; } }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; min-height: 100vh; padding: 2rem 1rem;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+        background: var(--bg); color: var(--text);
+      }
+      .wrap { max-width: 640px; margin: 0 auto; }
+      header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.5rem; }
+      h1 { font-size: clamp(1.5rem, 6vw, 2rem); margin: 0; }
+      header a { color: var(--muted); text-decoration: none; font-size: .9rem; }
+      .grid { display: grid; gap: 1rem; }
+      a.card {
+        display: block; padding: 1.1rem 1.25rem; border-radius: 14px;
+        background: var(--card); color: inherit; text-decoration: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,.15); transition: transform .12s ease;
+      }
+      a.card:active { transform: scale(.98); }
+      .card .emoji { font-size: 2rem; }
+      .card h2 { margin: .3rem 0 .2rem; font-size: 1.15rem; }
+      .card p { margin: 0; color: var(--muted); font-size: .9rem; }
+      .tag { display: inline-block; margin-top: .5rem; padding: .15rem .5rem; border-radius: 999px;
+             font-size: .75rem; background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>🎮 遊戲選單</h1>
+        <a href="../">← ohero</a>
+      </header>
+      <div class="grid">
+        <a class="card" href="./g001-bomb/">
+          <div class="emoji">💣</div>
+          <h2>踩地雷 — 單機</h2>
+          <p>經典踩地雷,三種難度,支援手機。</p>
+          <span class="tag">單人 Single-player</span>
+        </a>
+        <a class="card" href="./g002-bomb-mp/">
+          <div class="emoji">💣🆚</div>
+          <h2>踩地雷 — 對戰</h2>
+          <p>透過連結即時對戰:競速、合作、搶解鎖。</p>
+          <span class="tag">多人 Multiplayer</span>
+        </a>
+      </div>
+    </div>
+  </body>
+</html>

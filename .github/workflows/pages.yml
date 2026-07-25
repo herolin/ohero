@@ -1,10 +1,13 @@
 name: Deploy to GitHub Pages
 
-# Deploy host for the game1-bomb project. Publishes two versions side by side
-# on one Pages site:
-#   /game1-bomb/      <- frozen stable (ohero "stable" branch)
-#   /game1-bomb-dev/  <- work in progress (ohero "main" branch)
-# GitHub Pages replaces the whole site each deploy, so both are built together.
+# Deploy host for the ohero site. Publishes:
+#   /                       -> official site placeholder (ohero-site/index.html)
+#   /games/                 -> game menu (ohero-site/games-index.html)
+#   /games/g001-bomb/       -> single-player build (ohero "stable" branch)
+#   /games/g002-bomb-mp/    -> multiplayer build (ohero "main" branch)
+#
+# Both game builds come from the game1-bomb source (two branches) for now; see
+# DEPLOY.md for the target model where each game repo publishes its own dist.
 
 on:
   push:
@@ -25,8 +28,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # ---- Dev version (this branch: main) -> /game1-bomb-dev/ ----
-      - name: Checkout dev (main)
+      # ---- Multiplayer build (this branch: main) -> /games/g002-bomb-mp/ ----
+      - name: Checkout mp (main)
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -35,27 +38,41 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Build dev version
+      - name: Build multiplayer version
         run: |
           npm ci
           npm run build
-          mkdir -p site/game1-bomb-dev
-          cp -r dist/. site/game1-bomb-dev/
+          mkdir -p site/games/g002-bomb-mp
+          cp -r dist/. site/games/g002-bomb-mp/
 
-      # ---- Frozen stable version (stable branch) -> /game1-bomb/ ----
-      - name: Checkout stable
+      # ---- Single-player build (stable branch) -> /games/g001-bomb/ ----
+      - name: Checkout single-player (stable)
         uses: actions/checkout@v4
         with:
           ref: stable
           path: stable
 
-      - name: Build stable version
+      - name: Build single-player version
         run: |
           cd stable
           npm ci
           npm run build
-          mkdir -p ../site/game1-bomb
-          cp -r dist/. ../site/game1-bomb/
+          mkdir -p ../site/games/g001-bomb
+          cp -r dist/. ../site/games/g001-bomb/
+
+      # ---- Games published by their own repos (committed under games/) ----
+      - name: Include externally-published games
+        run: |
+          if [ -d games ]; then
+            mkdir -p site/games
+            cp -r games/. site/games/
+          fi
+
+      # ---- Official site + game menu (static, from ohero-site/) ----
+      - name: Add official site + menu
+        run: |
+          cp ohero-site/index.html site/index.html
+          cp ohero-site/games-index.html site/games/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

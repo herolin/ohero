@@ -78,13 +78,19 @@ ohero/
 
 ---
 
-## 7. 目前狀態與遷移備註
+## 7. 目前狀態(過渡做法)
 
-- 現階段 `game1-bomb` 暫時發布在 `/ohero/game1-bomb/`(及 `/game1-bomb-dev/`),
-  用的是「ohero 直接 build game1-bomb 兩個分支」的舊流程(`pages.yml`)。
-- 遷移到本文件架構時要做:
-  1. 把 ohero 改為**靜態內容站**(`pages.yml` 改成只上傳、不 build)。
-  2. game1-bomb 改用 `deploy-game.yml`,發布路徑改為 `games/game1-bomb/`。
-  3. 建立 `index.html`(官網 placeholder)與 `games/index.html`(選單)。
-- 遷移會改變現有測試網址(`/game1-bomb/` → `/games/game1-bomb/`),故安排在單機/對戰
-  實測告一段落後執行。
+已套用 `/games/` 架構,目前的兩個遊戲對應:
+
+| 網址 | 內容 | 來源 |
+|------|------|------|
+| `/ohero/` | 官網 placeholder | `ohero-site/index.html` |
+| `/ohero/games/` | 遊戲選單 | `ohero-site/games-index.html` |
+| `/ohero/games/g001-bomb/` | 踩地雷(單機) | ohero `stable` 分支 build |
+| `/ohero/games/g002-bomb-mp/` | 踩地雷(對戰) | ohero `main` 分支 build |
+
+**過渡說明**:目前這兩個遊戲都源自同一個 `game1-bomb` repo 的兩個分支,由 ohero 的
+`pages.yml` **直接 build** 進 `site/games/<slug>/`(非第 6 節的 PAT 推送模式)。
+之後**新的獨立遊戲**請走第 5 節標準流程(自有 repo + `deploy-game.yml` 推送),
+兩種模式可並存:ohero 的 `pages.yml` 負責這兩個既有版本 + 官網/選單,新遊戲各自推入
+`games/<slug>/`。
