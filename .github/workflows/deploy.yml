@@ -37,10 +37,17 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Publish under a /game1-bomb/ sub-path so the same Pages site can host
+      # multiple games (https://<user>.github.io/ohero/game1-bomb/).
+      - name: Stage site under /game1-bomb/ sub-path
+        run: |
+          mkdir -p site/game1-bomb
+          cp -r dist/. site/game1-bomb/
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site
 
   deploy:
     needs: build
