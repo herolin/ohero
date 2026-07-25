@@ -391,6 +391,49 @@ select {
   font-weight: 700;
 }
 
+/* Shared-board modes (co-op / claim) */
+.score-panel {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.score-panel[hidden] {
+  display: none;
+}
+
+.score-panel .chip {
+  flex: 1;
+  text-align: center;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.score-panel .chip.you {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.score-panel .chip.opp {
+  background: color-mix(in srgb, #ef6c00 25%, transparent);
+}
+
+.mode-badge {
+  font-size: 0.85rem;
+  color: var(--muted);
+  align-self: center;
+}
+
+/* Ownership tint (claim mode) */
+.cell.revealed.owned-self {
+  background: color-mix(in srgb, var(--accent) 28%, var(--cell-revealed));
+}
+
+.cell.revealed.owned-other {
+  background: color-mix(in srgb, #ef6c00 32%, var(--cell-revealed));
+}
+
 @media (max-width: 600px) {
   :root {
     --cell-size: 26px;

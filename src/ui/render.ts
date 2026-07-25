@@ -1,16 +1,21 @@
 import type { Game } from '../game/gameState';
+import type { Board } from '../game/board';
+import type { PlayerId } from '../game/types';
+
+export interface RenderOpts {
+  /** Reveal all mines (loss state). */
+  lost?: boolean;
+  /** When set, revealed cells get owner colouring relative to this id. */
+  myId?: PlayerId | null;
+}
 
 /**
- * Render the board grid into `grid` from the current game state.
- * Rebuilds the grid on every call — cheap enough for up to 16×30 cells and
- * keeps the DOM a pure function of state. On loss, all mines are revealed.
+ * Render a board's cells into `grid`. Rebuilds the grid on every call — cheap
+ * enough for up to 16×30 cells and keeps the DOM a pure function of state.
  */
-export function renderBoard(grid: HTMLElement, game: Game): void {
-  const { board } = game;
-  const lost = game.status === 'lost';
-
+export function renderBoardCells(grid: HTMLElement, board: Board, opts: RenderOpts = {}): void {
+  const lost = opts.lost ?? false;
   grid.style.setProperty('--cols', String(board.cols));
-  grid.setAttribute('aria-disabled', String(game.status === 'won' || lost));
 
   const fragment = document.createDocumentFragment();
   for (let row = 0; row < board.rows; row++) {
@@ -33,6 +38,9 @@ export function renderBoard(grid: HTMLElement, game: Game): void {
           el.textContent = String(cell.adjacentMines);
           el.dataset.n = String(cell.adjacentMines);
         }
+        if (opts.myId !== undefined && cell.owner) {
+          el.classList.add(cell.owner === opts.myId ? 'owned-self' : 'owned-other');
+        }
       } else if (cell.isFlagged) {
         el.classList.add('flagged');
         el.textContent = '🚩';
@@ -42,6 +50,12 @@ export function renderBoard(grid: HTMLElement, game: Game): void {
   }
 
   grid.replaceChildren(fragment);
+}
+
+/** Render from a single-player/race Game (mines shown on loss). */
+export function renderBoard(grid: HTMLElement, game: Game): void {
+  grid.setAttribute('aria-disabled', String(game.status === 'won' || game.status === 'lost'));
+  renderBoardCells(grid, game.board, { lost: game.status === 'lost' });
 }
 
 /** The reset-button face reflects the current game status. */
