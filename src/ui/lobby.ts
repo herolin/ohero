@@ -25,8 +25,8 @@ export interface StartInfo {
 export interface LobbyCallbacks {
   /** Return to single-player (clears the room from the URL). */
   onExit: () => void;
-  /** A match has started (both peers agreed on mode/seed/startAt). */
-  onStart: (info: StartInfo) => void;
+  /** A match has started; the live connection is handed to the game view. */
+  onStart: (info: StartInfo, connection: Connection) => void;
 }
 
 /** Countdown lead time before a synchronised start (ms). */
@@ -39,6 +39,7 @@ export class Lobby {
   private mode: GameMode = 'race';
   private difficulty: Difficulty = 'intermediate';
   private roomId: string | null = null;
+  private readonly unsubscribe: () => void;
 
   constructor(
     private readonly root: HTMLElement,
@@ -59,13 +60,21 @@ export class Lobby {
     backBtn.textContent = t('back');
     backBtn.addEventListener('click', () => this.exit());
 
-    onLocaleChange(() => {
-      this.query<HTMLElement>('.title').textContent = t('appTitle');
-      this.query<HTMLButtonElement>('.back').textContent = t('back');
+    this.unsubscribe = onLocaleChange(() => {
+      const title = this.root.querySelector<HTMLElement>('.title');
+      const back = this.root.querySelector<HTMLButtonElement>('.back');
+      if (title) title.textContent = t('appTitle');
+      if (back) back.textContent = t('back');
     });
 
     if (this.opts.joinRoom) this.startGuest(this.opts.joinRoom);
     else this.renderHostSetup();
+  }
+
+  /** Tear down the locale listener (does not close the connection, which may
+   *  have been handed to a game view). */
+  destroy(): void {
+    this.unsubscribe();
   }
 
   private query<T extends HTMLElement>(selector: string): T {
@@ -227,16 +236,17 @@ export class Lobby {
 
   private handleStart(msg: StartMsg): void {
     const role: Role = this.connection.role ?? 'host';
-    // Placeholder until stages 5–6 wire up actual versus play.
-    this.body.innerHTML = `<p class="status ready"></p>`;
-    this.query<HTMLElement>('.status').textContent = t('matchReady');
-    this.callbacks.onStart({
-      role,
-      mode: msg.mode,
-      difficulty: msg.difficulty,
-      seed: msg.seed,
-      startAt: msg.startAt,
-    });
+    // Hand the live connection over to the game view.
+    this.callbacks.onStart(
+      {
+        role,
+        mode: msg.mode,
+        difficulty: msg.difficulty,
+        seed: msg.seed,
+        startAt: msg.startAt,
+      },
+      this.connection,
+    );
   }
 
   private renderError(message: string): void {

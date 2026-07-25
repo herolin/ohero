@@ -30,6 +30,15 @@ const zhCN: Messages = {
   matchReady: '双方已就绪 — 对战玩法将于后续阶段实现。',
   opponentLeft: '对手已断线。',
   connectionError: '连接发生错误。',
+  // Race gameplay
+  you: '你',
+  opponent: '对手',
+  go: '开始!',
+  raceWin: '你赢了!🎉',
+  raceLose: '你输了 💥',
+  rematch: '再来一局',
+  rematchWait: '等待对手…',
+  comingSoon: '此模式将于后续阶段推出。',
 };
 
 export default zhCN;

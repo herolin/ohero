@@ -36,6 +36,15 @@ export interface Messages {
   matchReady: string;
   opponentLeft: string;
   connectionError: string;
+  // Race gameplay
+  you: string;
+  opponent: string;
+  go: string;
+  raceWin: string;
+  raceLose: string;
+  rematch: string;
+  rematchWait: string;
+  comingSoon: string;
 }
 
 export type Locale = 'en' | 'zh-TW' | 'zh-CN';
@@ -96,9 +105,14 @@ let current: Locale = detectLocale();
 type Listener = () => void;
 const listeners: Listener[] = [];
 
-/** Subscribe to locale changes (e.g. to re-render static labels). */
-export function onLocaleChange(fn: Listener): void {
+/** Subscribe to locale changes (e.g. to re-render static labels).
+ *  Returns an unsubscribe function; call it when the view is torn down. */
+export function onLocaleChange(fn: Listener): () => void {
   listeners.push(fn);
+  return () => {
+    const i = listeners.indexOf(fn);
+    if (i >= 0) listeners.splice(i, 1);
+  };
 }
 
 export function getLocale(): Locale {

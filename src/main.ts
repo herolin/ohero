@@ -8,7 +8,10 @@ import { randomSeed } from './game/rng';
 import { renderBoard, statusFace } from './ui/render';
 import { bindBoardInput } from './ui/input';
 import { Lobby } from './ui/lobby';
-import { getRoomFromLocation } from './multiplayer/room';
+import type { StartInfo } from './ui/lobby';
+import { RaceGame } from './ui/raceGame';
+import type { Connection } from './multiplayer/connection';
+import { getRoomFromLocation, setRoomInLocation } from './multiplayer/room';
 import {
   t,
   getLocale,
@@ -39,6 +42,7 @@ class MinesweeperApp {
   private readonly languageSelect: HTMLSelectElement;
   private readonly languageLabel: HTMLElement;
   private readonly versusBtn: HTMLButtonElement;
+  private unsubscribe: () => void = () => {};
 
   constructor(
     root: HTMLElement,
@@ -92,7 +96,7 @@ class MinesweeperApp {
       onFlag: (pos) => this.handleFlag(pos),
     });
 
-    onLocaleChange(() => this.applyTexts());
+    this.unsubscribe = onLocaleChange(() => this.applyTexts());
     this.applyTexts();
     this.newGame();
   }
@@ -211,25 +215,85 @@ class MinesweeperApp {
       this.messageEl.textContent = '';
     }
   }
+
+  destroy(): void {
+    this.stopTimer();
+    this.unsubscribe();
+  }
 }
 
-// ---- Top-level routing: single-player vs. multiplayer lobby ----
+// ---- Top-level routing ----
+
+interface View {
+  destroy(): void;
+}
+
+let current: View | null = null;
+
+function mount(view: View): void {
+  current?.destroy();
+  current = view;
+}
 
 function openSinglePlayer(root: HTMLElement): void {
-  new MinesweeperApp(root, () => openLobby(root, null));
+  mount(new MinesweeperApp(root, () => openLobby(root, null)));
 }
 
 function openLobby(root: HTMLElement, joinRoom: string | null): void {
-  new Lobby(
-    root,
-    { joinRoom },
-    {
-      onExit: () => openSinglePlayer(root),
-      onStart: () => {
-        // Stage 5–6 will hand off to the versus game view here.
+  mount(
+    new Lobby(
+      root,
+      { joinRoom },
+      {
+        onExit: () => openSinglePlayer(root),
+        onStart: (info, connection) => openGame(root, info, connection),
       },
-    },
+    ),
   );
+}
+
+function openGame(root: HTMLElement, info: StartInfo, connection: Connection): void {
+  const backToSingle = (): void => {
+    setRoomInLocation(null);
+    openSinglePlayer(root);
+  };
+
+  if (info.mode === 'race') {
+    mount(
+      new RaceGame(root, {
+        connection,
+        role: info.role,
+        difficulty: info.difficulty,
+        seed: info.seed,
+        startAt: info.startAt,
+        onExit: backToSingle,
+      }),
+    );
+  } else {
+    // Co-op / claim (shared board) arrive in stage 6.
+    connection.close();
+    mount(comingSoonView(root, backToSingle));
+  }
+}
+
+/** Minimal placeholder view for modes not yet implemented. */
+function comingSoonView(root: HTMLElement, onExit: () => void): View {
+  root.innerHTML = `
+    <div class="app lobby">
+      <header><h1 class="title"></h1></header>
+      <div class="lobby-body"><p class="status"></p></div>
+      <button class="back" type="button"></button>
+    </div>
+  `;
+  const set = (): void => {
+    root.querySelector<HTMLElement>('.title')!.textContent = t('appTitle');
+    root.querySelector<HTMLElement>('.status')!.textContent = t('comingSoon');
+    root.querySelector<HTMLElement>('.back')!.textContent = t('back');
+  };
+  set();
+  const unsubscribe = onLocaleChange(set);
+  root.querySelector<HTMLButtonElement>('.back')!.addEventListener('click', onExit);
+  return { destroy: unsubscribe };
 }
 
 const root = document.querySelector<HTMLDivElement>('#app');

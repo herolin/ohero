@@ -30,6 +30,15 @@ const en: Messages = {
   matchReady: 'Both players ready — versus play arrives in a later stage.',
   opponentLeft: 'Opponent disconnected.',
   connectionError: 'Connection error.',
+  // Race gameplay
+  you: 'You',
+  opponent: 'Opponent',
+  go: 'GO!',
+  raceWin: 'You win! 🎉',
+  raceLose: 'You lose 💥',
+  rematch: 'Rematch',
+  rematchWait: 'Waiting for opponent…',
+  comingSoon: 'This mode is coming in a later stage.',
 };
 
 export default en;
