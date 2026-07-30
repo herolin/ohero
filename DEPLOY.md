@@ -80,17 +80,22 @@ ohero/
 
 ## 7. 目前狀態(過渡做法)
 
-已套用 `/games/` 架構,目前的兩個遊戲對應:
+已套用 `/games/` 架構,目前上線的遊戲:
 
-| 網址 | 內容 | 來源 |
-|------|------|------|
-| `/ohero/` | 官網 placeholder | `ohero-site/index.html` |
-| `/ohero/games/` | 遊戲選單 | `ohero-site/games-index.html` |
-| `/ohero/games/g001-bomb/` | 踩地雷(單機) | ohero `stable` 分支 build |
-| `/ohero/games/g002-bomb-mp/` | 踩地雷(對戰) | ohero `main` 分支 build |
+| 網址 | 內容 | 來源 | 發布機制 |
+|------|------|------|:---:|
+| `/ohero/` | 官網 placeholder | `ohero-site/index.html` | — |
+| `/ohero/games/` | 遊戲選單 | `ohero-site/games-index.html` | — |
+| `/ohero/games/g001-bomb/` | 踩地雷(單機) | ohero `stable` 分支 build | A′ |
+| `/ohero/games/g002-bomb-mp/` | 踩地雷(對戰) | ohero `main` 分支 build | A′ |
+| `/ohero/games/g003-snake/` | 貪食蛇(單機 + 對戰) | `herolin/g003-snake` | B |
+| `/ohero/games/g004-tank/` | 坦克大作戰(單機 + 對戰) | `herolin/g004-tank` | B |
 
-**過渡說明**:目前這兩個遊戲都源自同一個 `game1-bomb` repo 的兩個分支,由 ohero 的
-`pages.yml` **直接 build** 進 `site/games/<slug>/`(非第 6 節的 PAT 推送模式)。
-之後**新的獨立遊戲**請走第 5 節標準流程(自有 repo + `deploy-game.yml` 推送),
-兩種模式可並存:ohero 的 `pages.yml` 負責這兩個既有版本 + 官網/選單,新遊戲各自推入
-`games/<slug>/`。
+- **A′(過渡)**:兩個踩地雷版本源自同一個 `game1-bomb` repo 的兩個分支,由 ohero 的
+  `pages.yml` **直接 build** 進 `site/games/<slug>/`。這是歷史遺留,不建議沿用。
+- **B(目前實務)**:各遊戲自有 repo,build 後把 `dist/` 同步進本 repo 的
+  `games/<slug>/` 並提交;`pages.yml` 只負責原樣複製發布。
+  目前由工作階段手動同步,因為 `OHERO_DEPLOY_TOKEN` secret 尚未設定。
+
+**要讓 B 全自動化**:依第 4 節建立 PAT 並存進各遊戲 repo 的 `OHERO_DEPLOY_TOKEN`,
+之後那些 repo push 到 `main` 就會自己發布(`deploy-game.yml` 已就緒)。
