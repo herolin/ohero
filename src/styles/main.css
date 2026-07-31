@@ -475,3 +475,63 @@ select {
     --cell-size: 26px;
   }
 }
+
+/* ---- Ownership: footer note and the off-site notice ---- */
+
+/* The page was a single centred flex ROW when #app was the only child. Adding
+   a banner above and a footer below makes that wrong — they would sit beside
+   the game. Stacking is what was always meant; it only became visible now. */
+body {
+  flex-direction: column;
+  align-items: center;
+  /* The original `justify-content: center` centred horizontally while this was
+     a row; in a column it centres VERTICALLY and drops the whole page down the
+     screen. Along this axis the content should start at the top. */
+  justify-content: flex-start;
+}
+
+.site-note {
+  margin: 0.75rem auto 1.25rem;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--muted, #8590a6);
+  opacity: 0.75;
+}
+
+.site-note a {
+  color: inherit;
+}
+
+.site-note .build {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+/* Shown only when served from somewhere unofficial. Dismissible on purpose —
+   it is a notice, not a lock (see src/ownership.ts). */
+.offsite-notice {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: #3a2a12;
+  color: #ffd9a0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.offsite-notice a {
+  color: inherit;
+}
+
+.offsite-notice button {
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}

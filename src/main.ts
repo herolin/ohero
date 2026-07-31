@@ -22,6 +22,7 @@ import {
   LOCALE_NAMES,
   type Locale,
 } from './i18n';
+import { installOwnership } from './ownership';
 
 const DIFFICULTY_KEYS = ['beginner', 'intermediate', 'expert'] as const;
 
@@ -291,3 +292,5 @@ if (root) {
   if (room) openLobby(root, room);
   else openSinglePlayer(root);
 }
+
+installOwnership();

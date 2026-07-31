@@ -1,7 +1,7 @@
 {
   "name": "game1-bomb",
   "version": "0.1.0",
-  "description": "Windows-style Minesweeper web game with real-time WebRTC multiplayer",
+  "description": "ohero — game host site and Minesweeper builds",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -17,7 +17,7 @@
     "multiplayer",
     "typescript"
   ],
-  "license": "MIT",
+  "license": "UNLICENSED",
   "dependencies": {
     "peerjs": "^1.5.4"
   },
@@ -26,5 +26,8 @@
     "typescript": "^5.6.3",
     "vite": "^6.0.3",
     "vitest": "^2.1.8"
-  }
+  },
+  "private": true,
+  "author": "herolin",
+  "homepage": "https://herolin.github.io/ohero/games/g002-bomb-mp/"
 }
