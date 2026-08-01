@@ -91,6 +91,7 @@ ohero/
 | `/ohero/games/g003-snake/` | 貪食蛇(單機 + 對戰) | `herolin/g003-snake` | B |
 | `/ohero/games/g004-tank/` | 坦克大作戰(單機 + 對戰) | `herolin/g004-tank` | B |
 | `/ohero/games/g005-pacman/` | 迷宮大胃王(單機 + 對戰) | `herolin/g005-pacman` | B |
+| `/ohero/games/g006-towerout/` | 高樓逃難(**開發中**:階段 1 手感測試場,尚非遊戲) | `herolin/g006-towerout` | B |
 
 - **A′(過渡)**:兩個踩地雷版本源自同一個 `game1-bomb` repo 的兩個分支,由 ohero 的
   `pages.yml` **直接 build** 進 `site/games/<slug>/`。這是歷史遺留,不建議沿用。

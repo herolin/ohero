@@ -31,6 +31,9 @@
       .card p { margin: 0; color: var(--muted); font-size: .9rem; }
       .tag { display: inline-block; margin-top: .5rem; padding: .15rem .5rem; border-radius: 999px;
              font-size: .75rem; background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+      /* Unfinished builds get their own colour so "not a game yet" is visible
+         before you tap, not after. */
+      .tag.wip { background: color-mix(in srgb, #e0a032 22%, transparent); color: #e0a032; }
     </style>
   </head>
   <body>
@@ -69,6 +72,12 @@
           <h2>迷宮大胃王 — 單機 & 對戰</h2>
           <p>吃光迷宮裡的豆子,躲開四隻追逐者:三種難度、自製迷宮 + 隨機生成、能量豆反擊連段;透過連結即時對戰:一人吃豆 vs 一人扮追逐者、雙人合作清關。</p>
           <span class="tag">多人 Multiplayer</span>
+        </a>
+        <a class="card" href="./g006-towerout/">
+          <div class="emoji">🏢🪓</div>
+          <h2>高樓逃難 — 開發中預覽</h2>
+          <p>還不是遊戲:這是手感測試場,只有樓板、承重樑和一個角色。用來調跳躍弧線、空中控制與破板手感。敲破頭頂樓板往上跳,要左右移動才落得上去。</p>
+          <span class="tag wip">開發中 Work in progress</span>
         </a>
       </div>
     </div>
