@@ -30,6 +30,23 @@ const en: Messages = {
   matchReady: 'Both players ready — versus play arrives in a later stage.',
   opponentLeft: 'Opponent disconnected.',
   connectionError: 'Connection error.',
+
+  playerName: 'Name',
+  guestNote: 'Playing as a guest — scores stay on this device.',
+  signInGoogle: 'Sign in with Google',
+  signedInAs: 'Signed in as',
+  signOut: 'Sign out',
+  signInUnavailable: 'Sign-in is not set up yet — a shared board needs a backend first.',
+  you: 'You',
+  boardTop: 'Best',
+  boardRecent: 'Recent',
+  boardEmpty: 'No scores yet — go and set one.',
+  boardLocalOnly: 'This board is from this device only.',
+  boardShared: 'Shared board.',
+  justNow: 'just now',
+  minutesAgo: 'm ago',
+  hoursAgo: 'h ago',
+  daysAgo: 'd ago',
 };
 
 export default en;

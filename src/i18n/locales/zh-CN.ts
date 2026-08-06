@@ -30,6 +30,23 @@ const zhCN: Messages = {
   matchReady: '双方已就绪 — 对战玩法将于后续阶段实现。',
   opponentLeft: '对手已断线。',
   connectionError: '连接发生错误。',
+
+  playerName: '名字',
+  guestNote: '以来宾身分游玩 —— 分数只会留在这台设备。',
+  signInGoogle: '用 Google 登录',
+  signedInAs: '已登录',
+  signOut: '登出',
+  signInUnavailable: '登录功能尚未设定 —— 共用排行榜需要后端才能做。',
+  you: '你',
+  boardTop: '最高分',
+  boardRecent: '最近',
+  boardEmpty: '还没有纪录 —— 去创一个吧。',
+  boardLocalOnly: '此排行榜仅来自本机。',
+  boardShared: '共用排行榜。',
+  justNow: '刚刚',
+  minutesAgo: ' 分钟前',
+  hoursAgo: ' 小时前',
+  daysAgo: ' 天前',
 };
 
 export default zhCN;

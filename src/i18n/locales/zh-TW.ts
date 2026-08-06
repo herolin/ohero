@@ -30,6 +30,23 @@ const zhTW: Messages = {
   matchReady: '雙方已就緒 — 對戰玩法將於後續階段實作。',
   opponentLeft: '對手已斷線。',
   connectionError: '連線發生錯誤。',
+
+  playerName: '名字',
+  guestNote: '以來賓身分遊玩 —— 分數只會留在這台裝置。',
+  signInGoogle: '用 Google 登入',
+  signedInAs: '已登入',
+  signOut: '登出',
+  signInUnavailable: '登入功能尚未設定 —— 共用排行榜需要後端才能做。',
+  you: '你',
+  boardTop: '最高分',
+  boardRecent: '最近',
+  boardEmpty: '還沒有紀錄 —— 去創一個吧。',
+  boardLocalOnly: '此排行榜僅來自本機。',
+  boardShared: '共用排行榜。',
+  justNow: '剛剛',
+  minutesAgo: ' 分鐘前',
+  hoursAgo: ' 小時前',
+  daysAgo: ' 天前',
 };
 
 export default zhTW;

@@ -9,6 +9,11 @@ import { renderBoard, statusFace } from './ui/render';
 import { bindBoardInput } from './ui/input';
 import { Lobby } from './ui/lobby';
 import { getRoomFromLocation } from './multiplayer/room';
+import { GAME_SLUG } from './platform/game';
+import { getPlayer, onPlayerChange, renamePlayer, signOut } from './platform/identity';
+import { recordScore } from './platform/scores';
+import { Leaderboard } from './ui/leaderboard';
+import { winScore } from './game/score';
 import {
   t,
   getLocale,
@@ -24,6 +29,9 @@ const DIFFICULTY_KEYS = ['beginner', 'intermediate', 'expert'] as const;
 class MinesweeperApp {
   private game: Game;
   private difficulty: Difficulty = 'beginner';
+  /** Guard so one won game files one score, however often render() runs. */
+  private recorded = false;
+  private readonly board: Leaderboard;
 
   private elapsed = 0;
   private timerId: number | null = null;
@@ -57,6 +65,10 @@ class MinesweeperApp {
               <span class="language-label"></span>
               <select class="language"></select>
             </label>
+            <label>
+              <span class="name-label"></span>
+              <input class="player-name" type="text" maxlength="16" autocomplete="nickname" />
+            </label>
             <button class="versus" type="button"></button>
           </div>
         </header>
@@ -67,6 +79,11 @@ class MinesweeperApp {
         </div>
         <div class="board-wrap"><div class="grid"></div></div>
         <p class="message" role="status" aria-live="polite"></p>
+        <p class="identity-row">
+          <span class="identity-note"></span>
+          <button class="identity-action" type="button"></button>
+        </p>
+        <div class="board-host"></div>
       </div>
     `;
 
@@ -92,8 +109,35 @@ class MinesweeperApp {
       onFlag: (pos) => this.handleFlag(pos),
     });
 
-    onLocaleChange(() => this.applyTexts());
+    const nameInput = this.must<HTMLInputElement>('.player-name');
+    // Commit on blur and on Enter rather than per keystroke: renaming on every
+    // character would rewrite storage a dozen times for one edit.
+    const commitName = (): void => {
+      const player = renamePlayer(nameInput.value);
+      nameInput.value = player.name;
+    };
+    nameInput.addEventListener('blur', commitName);
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        commitName();
+        nameInput.blur();
+      }
+    });
+    this.must<HTMLButtonElement>('.identity-action').addEventListener('click', () => {
+      void this.onIdentityAction();
+    });
+
+    this.board = new Leaderboard(this.must('.board-host'), GAME_SLUG);
+    onLocaleChange(() => {
+      this.applyTexts();
+      void this.board.refresh();
+    });
+    onPlayerChange(() => {
+      this.applyIdentity();
+      void this.board.refresh();
+    });
     this.applyTexts();
+    void this.board.refresh();
     this.newGame();
   }
 
@@ -143,6 +187,8 @@ class MinesweeperApp {
     this.difficultyLabel.textContent = t('difficulty');
     this.languageLabel.textContent = t('language');
     this.versusBtn.textContent = t('versus');
+    this.must<HTMLElement>('.name-label').textContent = t('playerName');
+    this.applyIdentity();
     document.title = t('appTitle');
     // Difficulty option labels are locale-dependent; rebuild them.
     this.buildDifficultyOptions();
@@ -153,6 +199,7 @@ class MinesweeperApp {
     this.game = new Game(DIFFICULTIES[this.difficulty], randomSeed());
     this.stopTimer();
     this.elapsed = 0;
+    this.recorded = false;
     this.render();
   }
 
@@ -202,8 +249,61 @@ class MinesweeperApp {
     this.renderMessage();
   }
 
+  /**
+   * Sign in, or sign out again.
+   *
+   * Sign-in needs a backend to be worth anything — an account whose scores go
+   * nowhere shared is just a longer way to type a name — so until one is
+   * configured this says so rather than pretending.
+   */
+  private async onIdentityAction(): Promise<void> {
+    if (getPlayer().kind === 'google') {
+      signOut();
+      return;
+    }
+    const { signInWithGoogle, isAuthConfigured } = await import('./platform/auth');
+    if (!isAuthConfigured()) {
+      this.must<HTMLElement>('.identity-note').textContent = t('signInUnavailable');
+      return;
+    }
+    await signInWithGoogle();
+  }
+
+  private applyIdentity(): void {
+    const player = getPlayer();
+    const nameInput = this.must<HTMLInputElement>('.player-name');
+    nameInput.value = player.name;
+    // A signed-in name belongs to the account, not to this box.
+    nameInput.disabled = player.kind === 'google';
+    this.must<HTMLElement>('.identity-note').textContent =
+      player.kind === 'google' ? `${t('signedInAs')} ${player.name}` : t('guestNote');
+    this.must<HTMLButtonElement>('.identity-action').textContent =
+      player.kind === 'google' ? t('signOut') : t('signInGoogle');
+  }
+
+  /**
+   * File a won game on the board.
+   *
+   * The clock becomes points in `game/score.ts` — a rule, not a rendering
+   * decision. The time itself goes in the detail line, because that is the
+   * number a minesweeper player actually compares. Losses are not filed;
+   * there is nothing to rank about the moment you hit a mine.
+   */
+  private recordWin(): void {
+    if (this.recorded || this.game.status !== 'won') return;
+    this.recorded = true;
+    void recordScore({
+      game: GAME_SLUG,
+      player: getPlayer(),
+      score: winScore(this.difficulty, this.elapsed),
+      detail: `${t(this.difficulty)} · ${this.elapsed}s`,
+    });
+    void this.board.refresh();
+  }
+
   private renderMessage(): void {
     if (this.game.status === 'won') {
+      this.recordWin();
       this.messageEl.textContent = t('win');
     } else if (this.game.status === 'lost') {
       this.messageEl.textContent = t('lose');
