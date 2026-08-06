@@ -43,6 +43,22 @@ const en: Messages = {
   coopWin: 'You both win! 🎉',
   coopLose: 'You both lose 💥',
   draw: "It's a draw 🤝",
+
+  playerName: 'Name',
+  guestNote: 'Playing as a guest — scores stay on this device.',
+  signInGoogle: 'Sign in with Google',
+  signedInAs: 'Signed in as',
+  signOut: 'Sign out',
+  signInUnavailable: 'Sign-in is not set up yet — a shared board needs a backend first.',
+  boardTop: 'Best',
+  boardRecent: 'Recent',
+  boardEmpty: 'No scores yet — go and set one.',
+  boardLocalOnly: 'This board is from this device only.',
+  boardShared: 'Shared board.',
+  justNow: 'just now',
+  minutesAgo: 'm ago',
+  hoursAgo: 'h ago',
+  daysAgo: 'd ago',
 };
 
 export default en;

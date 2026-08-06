@@ -50,6 +50,23 @@ export interface Messages {
   coopWin: string;
   coopLose: string;
   draw: string;
+
+  // ---- Shared platform layer (see PLATFORM.md) ----
+  playerName: string;
+  guestNote: string;
+  signInGoogle: string;
+  signedInAs: string;
+  signOut: string;
+  signInUnavailable: string;
+  boardTop: string;
+  boardRecent: string;
+  boardEmpty: string;
+  boardLocalOnly: string;
+  boardShared: string;
+  justNow: string;
+  minutesAgo: string;
+  hoursAgo: string;
+  daysAgo: string;
 }
 
 export type Locale = 'en' | 'zh-TW' | 'zh-CN';

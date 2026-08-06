@@ -82,6 +82,9 @@ header {
 
 .controls {
   display: flex;
+  /* The row grew a name field. `.app` sizes to max-content, so without
+     wrapping the whole page ends up wider than a phone and scrolls sideways. */
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 
@@ -534,4 +537,137 @@ body {
   font-size: 1.1rem;
   line-height: 1;
   cursor: pointer;
+}
+
+
+/* ---- Player identity and the score board (see PLATFORM.md) ---- */
+
+.identity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin: -0.2rem 0 0.2rem;
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.identity-row button {
+  flex: 0 0 auto;
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border, #232a3a);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.player-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 11rem;
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border, #232a3a);
+  border-radius: 10px;
+  background: var(--bg, #06080f);
+  color: inherit;
+}
+
+.board {
+  margin-top: 0.9rem;
+  text-align: left;
+}
+
+.board-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.45rem;
+}
+
+.board-tab {
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.7rem;
+  border: 1px solid var(--border, #232a3a);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.board-tab.on {
+  opacity: 1;
+  border-color: var(--accent, #ff9f45);
+  color: var(--accent, #ff9f45);
+}
+
+.board-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+}
+
+.board-row {
+  display: grid;
+  grid-template-columns: 1.4rem 1fr auto auto;
+  gap: 0.5rem;
+  align-items: baseline;
+  padding: 0.24rem 0.4rem;
+  border-radius: 6px;
+}
+
+/* YOUR OWN ROWS GET THREE CUES, NOT ONE: background, a left edge, and the
+   "· You" tag the markup adds. Colour alone fails for anyone colour-blind and
+   fails for everyone who is scanning rather than reading. */
+.board-row.mine {
+  background: color-mix(in srgb, var(--accent, #ff9f45) 12%, transparent);
+  box-shadow: inset 2px 0 0 var(--accent, #ff9f45);
+}
+
+.board-rank {
+  opacity: 0.5;
+  font-variant-numeric: tabular-nums;
+}
+
+.board-who {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.board-you {
+  font-weight: 600;
+  color: var(--accent, #ff9f45);
+}
+
+.board-score {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.board-when,
+.board-detail {
+  font-size: 0.7rem;
+  opacity: 0.55;
+}
+
+.board-detail {
+  grid-column: 2 / -1;
+}
+
+.board-empty {
+  padding: 0.5rem 0.4rem;
+  font-size: 0.78rem;
+  opacity: 0.6;
+}
+
+.board-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.68rem;
+  opacity: 0.5;
 }
