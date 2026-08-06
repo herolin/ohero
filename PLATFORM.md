@@ -3,8 +3,9 @@
 這份文件說明 **ohero 各遊戲共用的玩家身分與分數層**:它現在能做什麼、
 還缺什麼、以及怎麼推廣到其它遊戲。
 
-g006-towerout 是**試作遊戲**。這裡的四個檔案設計成可以**原封不動複製**到
-g003 / g004 / g005,只需要改一行遊戲代號。
+g006-towerout 是**試作遊戲**,現在已經推廣到**全部六個發布版本**(見 §5)。
+`src/platform/` 的四個檔案與 `ui/leaderboard.ts` 在每一款遊戲裡都是同一份,
+只有一行遊戲代號不同。
 
 ---
 
@@ -38,7 +39,8 @@ src/ui/
 ```
 
 **分層原則不變**:`platform/` 不碰遊戲邏輯,`game/` 也不知道 `platform/` 存在。
-分數是在 `ui/gameView.ts` 一個地方送出的(`recordRun()`),遊戲結束轉場時才呼叫一次。
+分數是在**一個地方**送出的(g006 是 `ui/gameView.ts` 的 `recordRun()`),
+遊戲結束轉場時才呼叫一次,並用一個 `recorded` 旗標守住。
 
 ### 兩個關鍵設計
 
@@ -96,28 +98,48 @@ src/ui/
 
 ---
 
-## 5. 推廣到其它遊戲的步驟
+## 5. 推廣狀況:**六個發布版本全部完成**
 
-對 g003-snake / g004-tank / g005-pacman 各做一次:
+| 發布路徑 | 來源 | `GAME_SLUG` | 分數是什麼 |
+|---|---|---|---|
+| `/games/g001-bomb/` | `ohero` repo `stable` 分支 | `g001-bomb` | 由計時換算(見下) |
+| `/games/g002-bomb-mp/` | `ohero` repo `main` 分支 | `g002-bomb-mp` | 同上 |
+| `/games/g003-snake/` | `herolin/g003-snake` | `g003-snake` | 吃到的果實分數 |
+| `/games/g004-tank/` | `herolin/g004-tank` | `g004-tank` | 該局總分 |
+| `/games/g005-pacman/` | `herolin/g005-pacman` | `g005-pacman` | 該局總分 |
+| `/games/g006-towerout/` | `herolin/g006-towerout` | `g006-towerout` | 整趟累計總分 |
+
+**踩地雷是唯一需要額外處理的**,兩件事:
+
+1. **它沒有分數,只有計時。** 而共用排行榜是由高到低排。所以贏的那一局在
+   `game/score.ts` 換算成分數:**越快越高、盤面越大越高**,`999` 當基準
+   (經典踩地雷的計時上限,順便保證任何一局贏都是正分)。真正的秒數放在
+   detail 欄,因為那才是踩地雷玩家彼此會講的數字。**輸了不記錄**——踩到雷的
+   那一刻沒有什麼好排名的。這條規則放在 `game/`(有測試),不是放在畫面層。
+2. **同一份原始碼發布成兩個路徑**(`stable` → g001、`main` → g002),所以
+   `GAME_SLUG` 兩個分支各填各的。
+
+### 推廣時做過的每一步(給下一款遊戲用)
 
 1. 複製 `src/platform/` 四個檔案與 `src/ui/leaderboard.ts`。
-2. **改 `src/platform/game.ts` 的 `GAME_SLUG`**,必須和發佈路徑一致
-   (`https://herolin.github.io/ohero/games/<slug>/`)。這個字串是分數分屬哪個
-   遊戲的唯一依據,打錯會讓兩個遊戲的分數混在一起。
-3. 補上 i18n 字串:`playerName` / `guestNote` / `signInGoogle` / `signOut` /
-   `you` / `boardTop` / `boardRecent` / `boardEmpty` / `boardLocalOnly` /
-   `boardShared` / `justNow` / `minutesAgo` / `hoursAgo` / `daysAgo` /
-   `yourBest` / `signInUnavailable`。三個語系(en / zh-TW / zh-CN)都要補齊。
-4. 開始畫面掛上名字輸入欄、身分列與 `.board-host`,並複製對應的 CSS。
-5. 遊戲結束時呼叫一次 `recordScore()`——**只在轉入結束狀態的那一次**,用一個
-   `recorded` 旗標守住,否則每一幀都會存一筆。
-6. 複製 `tests/platform.test.ts`,把 `GAME` 常數換成該遊戲的代號。
-
----
+2. **改 `src/platform/game.ts` 的 `GAME_SLUG`**,必須和發布路徑一致。這個字串是
+   分數分屬哪個遊戲的唯一依據,打錯會讓兩個遊戲的分數混在一起。
+3. 補 i18n:`playerName` / `guestNote` / `signInGoogle` / `signedInAs` / `signOut` /
+   `signInUnavailable` / `you` / `boardTop` / `boardRecent` / `boardEmpty` /
+   `boardLocalOnly` / `boardShared` / `justNow` / `minutesAgo` / `hoursAgo` /
+   `daysAgo`,三個語系都要。**先檢查該遊戲是不是已經有同名 key**(g005 已經有
+   `you`),重複宣告在語系檔是語法錯誤,在介面是重複識別字。
+4. 開始畫面掛上名字欄、身分列與 `.board-host`,並複製 CSS 區塊。
+5. 結束時呼叫一次 `recordScore()`,用 `recorded` 旗標守住,否則每一幀都會存一筆。
+6. 複製 `tests/platform.test.ts`,把 `GAME` 換成該遊戲的代號,並確認 `OTHER`
+   **不是**同一個代號(跨遊戲隔離的測試需要兩個不同的遊戲)。
+7. **實機看一眼版面。** 名字欄讓 snake 和踩地雷的標題列變得比手機還寬——
+   兩者的 `.app` 都是 `max-width: max-content`,不換行的話整頁會左右捲動。
+   `.controls { flex-wrap: wrap }` 解決。
 
 ## 6. 測試
 
-`tests/platform.test.ts`,29 個測試(全專案 197 個)。涵蓋身分持久化與改名規則、
+`tests/platform.test.ts`,29 個測試,**六個發布版本各有一份**。涵蓋身分持久化與改名規則、
 排序、上限、跨遊戲隔離(**兩個方向都測**)、`localStorage` 塞垃圾資料的容錯、
 名字當成純文字而非 HTML(共用排行榜上的名字是別人輸入的,屬於不可信輸入),
 以及後端壞掉時 `recordScore()` 回傳 `null` 而不丟例外——存不了分數不該害玩家
