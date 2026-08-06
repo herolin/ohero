@@ -126,7 +126,10 @@ export class Leaderboard {
 
       const score = document.createElement('span');
       score.className = 'board-score';
-      score.textContent = entry.score.toLocaleString();
+      // `display` wins when a game ranks by one number and shows another —
+      // minesweeper ranks by a figure derived from the clock and shows the
+      // seconds. See ScoreEntry.display.
+      score.textContent = entry.display ?? entry.score.toLocaleString();
 
       const when = document.createElement('span');
       when.className = 'board-when';

@@ -2,14 +2,17 @@
 //
 // MINESWEEPER HAS NO SCORE, IT HAS A CLOCK — and the shared board across the
 // ohero games ranks highest-first (see PLATFORM.md). So a win is converted:
-// faster is worth more, and a bigger board is worth more again. The raw time
-// still goes on the board's detail line, because seconds are what one
-// minesweeper player actually says to another.
+// faster is worth more. Nothing else goes into it.
+//
+// DIFFICULTY DELIBERATELY DOES NOT WEIGHT THE RANKING. An earlier version
+// multiplied by board size, which meant the row at the top of the board was
+// not the fastest time on it — and the board's first column IS the time. A
+// column of seconds that does not sort by seconds is simply wrong. Difficulty
+// is shown alongside instead, so a beginner's 8s and an expert's 90s are both
+// legible for what they are.
 //
 // In `game/` rather than in the view because it is a rule, not a rendering
 // decision, and rules here are unit-tested.
-
-import type { Difficulty } from './types';
 
 /**
  * Seconds a win is measured against.
@@ -20,18 +23,11 @@ import type { Difficulty } from './types';
  */
 export const SCORE_PAR = 999;
 
-/** How much more a bigger board is worth. */
-const WEIGHT: Record<Difficulty, number> = {
-  beginner: 1,
-  intermediate: 2,
-  expert: 3,
-};
-
 /**
  * @param seconds elapsed on the clock. Clamped, so a run that somehow passes
  *   the ceiling still scores something rather than going negative and sorting
  *   below every loss-free zero.
  */
-export function winScore(difficulty: Difficulty, seconds: number): number {
-  return WEIGHT[difficulty] * Math.max(1, SCORE_PAR - Math.max(0, Math.floor(seconds)));
+export function winScore(seconds: number): number {
+  return Math.max(1, SCORE_PAR - Math.max(0, Math.floor(seconds)));
 }

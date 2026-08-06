@@ -24,6 +24,8 @@ import {
 } from '../src/platform/scores';
 import type { ScoreEntry, ScoreStore } from '../src/platform/scores';
 import { BOARD_ROWS, Leaderboard } from '../src/ui/leaderboard';
+import { GAME_SLUG } from '../src/platform/game';
+import { winScore } from '../src/game/score';
 import { setLocale } from '../src/i18n';
 
 const GAME = 'g002-bomb-mp';
@@ -33,6 +35,16 @@ function freshIdentity(): void {
   localStorage.clear();
   reloadPlayer();
 }
+
+// This tree publishes two games from one source (src/build.ts), so the slug is
+// a ternary rather than a literal — the one place in the platform layer where
+// it is. If that folds the wrong way, two different games silently share a
+// board, which is the exact failure the slug exists to prevent.
+describe('which game this build is', () => {
+  it('files scores under this build’s own slug', () => {
+    expect(GAME_SLUG).toBe(GAME);
+  });
+});
 
 describe('identity', () => {
   beforeEach(freshIdentity);
@@ -328,6 +340,26 @@ describe('Leaderboard', () => {
     expect(row.querySelector('.board-when')?.textContent).toBeTruthy();
     // The exact time is one hover away even though the row reads "just now".
     expect(row.querySelector('.board-when')?.getAttribute('title')).toBeTruthy();
+  });
+
+  // Minesweeper ranks by a figure derived from the clock but has to SHOW the
+  // seconds, so ordering and display are separate jobs.
+  it('prints `display` in the score column when a game supplies one', async () => {
+    await store.submit(entry({ playerId: 'a', score: winScore(12), display: '12s', at: 2 }));
+    await store.submit(entry({ playerId: 'b', score: winScore(90), display: '90s', at: 1 }));
+
+    const board = new Leaderboard(host, GAME);
+    await board.refresh();
+
+    const shown = rows().map((r) => r.querySelector('.board-score')?.textContent);
+    expect(shown).toEqual(['12s', '90s']); // fastest first, seconds on show
+  });
+
+  it('falls back to the score itself when there is no `display`', async () => {
+    await store.submit(entry({ playerId: 'a', score: 4_200 }));
+    const board = new Leaderboard(host, GAME);
+    await board.refresh();
+    expect(rows()[0].querySelector('.board-score')?.textContent).toBe('4,200');
   });
 
   it('switches between best and recent', async () => {

@@ -86,8 +86,8 @@ ohero/
 |------|------|------|:---:|
 | `/ohero/` | 官網 placeholder | `ohero-site/index.html` | — |
 | `/ohero/games/` | 遊戲選單 | `ohero-site/games-index.html` | — |
-| `/ohero/games/g001-bomb/` | 踩地雷(單機) | ohero `stable` 分支 build | A′ |
-| `/ohero/games/g002-bomb-mp/` | 踩地雷(對戰) | ohero `main` 分支 build | A′ |
+| `/ohero/games/g001-bomb/` | 踩地雷(單機) | ohero `main`,`VITE_SINGLE_PLAYER=1` | A′ |
+| `/ohero/games/g002-bomb-mp/` | 踩地雷(單機 + 對戰) | ohero `main`,不加旗標 | A′ |
 | `/ohero/games/g003-snake/` | 貪食蛇(單機 + 對戰) | `herolin/g003-snake` | B |
 | `/ohero/games/g004-tank/` | 坦克大作戰(單機 + 對戰) | `herolin/g004-tank` | B |
 | `/ohero/games/g005-pacman/` | 迷宮大胃王(單機 + 對戰) | `herolin/g005-pacman` | B |

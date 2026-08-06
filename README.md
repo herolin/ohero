@@ -7,13 +7,14 @@ repository. GitHub Actions builds and publishes on every push to `main`.
 
 | Version | URL |
 |---------|-----|
-| Minesweeper — stable (single-player + lobby) | https://herolin.github.io/ohero/game1-bomb/ |
-| Minesweeper — dev (stage 5, work in progress) | https://herolin.github.io/ohero/game1-bomb-dev/ |
+| Minesweeper — single-player | https://herolin.github.io/ohero/games/g001-bomb/ |
+| Minesweeper — single-player + versus | https://herolin.github.io/ohero/games/g002-bomb-mp/ |
 
 ## Branches
 
-- `main` — dev source; built to `/game1-bomb-dev/`.
-- `stable` — frozen stable source; built to `/game1-bomb/`.
+`main` is the source for both. The single-player build is the same commit with
+`VITE_SINGLE_PLAYER=1` (see `src/build.ts`), not a separate branch — the branch
+that used to serve it fell years behind, and a build flag cannot.
 
 Each game/version lives under its own sub-path, so more can be added later
 without clobbering the others.

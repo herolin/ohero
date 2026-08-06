@@ -671,3 +671,173 @@ body {
   font-size: 0.68rem;
   opacity: 0.5;
 }
+
+
+/*
+ * Back to the games hub.
+ *
+ * A LINK, not a button that calls history.back(). Most people arrive at one of
+ * these from the menu, but plenty arrive from a shared room link or a
+ * bookmark, and for them "back" is wherever they came from — which is not the
+ * games list. `../` is always the games list, because every game is published
+ * at /ohero/games/<slug>/.
+ */
+.to-hub {
+  display: inline-block;
+  font-size: 0.75rem;
+  text-decoration: none;
+  color: inherit;
+  opacity: 0.6;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--border, #232a3a);
+  border-radius: 999px;
+}
+
+.to-hub:hover,
+.to-hub:focus-visible {
+  opacity: 1;
+}
+
+
+/* ---- Start screen ---- */
+
+/*
+ * Setup lives here rather than above the grid: it keeps the game view down to
+ * the board and its status bar, and it gives the score board a home where
+ * someone will actually read it.
+ */
+.start .start-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: min(88vw, 320px);
+  padding: 0.5rem 0;
+}
+
+.start .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.start .play-btn,
+.start .versus {
+  align-self: stretch;
+}
+
+.start .play-btn {
+  margin-top: 0.5rem;
+  padding: 0.85rem 1rem;
+  font-size: 1.15rem;
+}
+
+/* ---- Game view: minimal chrome so the grid gets the screen ---- */
+
+.game-head {
+  margin-bottom: 0.5rem;
+}
+
+/* The back button rides in the status bar, so the game needs no toolbar. */
+.statusbar .to-start {
+  font: inherit;
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0.25rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.statusbar .to-start:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 480px) {
+  /* In-game, drop the title bar — the status bar carries the back button, so
+     the grid starts near the top of the screen. */
+  .game .game-head {
+    display: none;
+  }
+}
+
+/* ---- End-of-game panel ---- */
+
+/*
+ * Centred over everything. The score board lives on the start screen, so
+ * without a button back to it a game simply ends and the board is never seen.
+ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 20;
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.overlay .panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: min(320px, 100%);
+  padding: 1.1rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+
+.over-title {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: 0.06em;
+  color: #e05c3e;
+}
+
+.over-title.won {
+  color: #2e9e5b;
+}
+
+.over-score {
+  margin: 0;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.over-detail {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.overlay button {
+  width: 100%;
+  font: inherit;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  align-self: auto;
+}
+
+.overlay .primary {
+  padding: 0.8rem 1rem;
+  font-size: 1.02rem;
+  font-weight: 600;
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}

@@ -59,6 +59,13 @@ const en: Messages = {
   minutesAgo: 'm ago',
   hoursAgo: 'h ago',
   daysAgo: 'd ago',
+  backToGames: '← Games',
+
+  viewBoard: 'Scores',
+  playAgain: 'Play again',
+  finalTime: 'Time',
+  gameOver: 'Game over',
+  youWin: 'You win!',
 };
 
 export default en;

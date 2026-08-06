@@ -59,6 +59,13 @@ const zhTW: Messages = {
   minutesAgo: ' 分鐘前',
   hoursAgo: ' 小時前',
   daysAgo: ' 天前',
+  backToGames: '← 遊戲區',
+
+  viewBoard: '排行榜',
+  playAgain: '再玩一次',
+  finalTime: '用時',
+  gameOver: '遊戲結束',
+  youWin: '過關了!',
 };
 
 export default zhTW;

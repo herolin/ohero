@@ -13,12 +13,17 @@
 //   * the notice catches the download-and-re-upload case, which is nearly all
 //     of them, without breaking local development or offline play.
 
+import { SINGLE_PLAYER_ONLY } from './build';
+
 const YEAR = '2026';
 
 export const OWNER = 'herolin';
 export const GAME = 'Minesweeper';
-export const SLUG = 'g002-bomb-mp';
-export const HOME = 'https://herolin.github.io/ohero/games/g002-bomb-mp/';
+// This tree publishes two paths (see `src/build.ts`). The fingerprint has to
+// name the one it was built for, or a copy of g001 would be evidence against
+// g002 instead.
+export const SLUG = SINGLE_PLAYER_ONLY ? 'g001-bomb' : 'g002-bomb-mp';
+export const HOME = `https://herolin.github.io/ohero/games/${SLUG}/`;
 
 /** Injected at build time by vite.config.ts. */
 declare const __BUILD_ID__: string;

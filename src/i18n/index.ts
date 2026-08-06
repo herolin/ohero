@@ -67,6 +67,12 @@ export interface Messages {
   minutesAgo: string;
   hoursAgo: string;
   daysAgo: string;
+  backToGames: string;
+  viewBoard: string;
+  playAgain: string;
+  finalTime: string;
+  gameOver: string;
+  youWin: string;
 }
 
 export type Locale = 'en' | 'zh-TW' | 'zh-CN';

@@ -31,6 +31,16 @@ export interface ScoreEntry {
   at: number;
   /** Free-text context, e.g. "第 7 棟 · 中級". Shown next to the score. */
   detail?: string;
+  /**
+   * What to print in the score column instead of the number.
+   *
+   * Minesweeper is why this exists: it has a clock, not a score, so it ranks
+   * by a figure derived from the clock but has to SHOW the seconds — the
+   * number one player actually quotes to another. Ranking and display are
+   * different jobs and this keeps them apart. Optional; most games have a
+   * score and want it shown as-is.
+   */
+  display?: string;
 }
 
 export interface GameTotal {
@@ -181,6 +191,7 @@ export async function recordScore(args: {
   player: Player;
   score: number;
   detail?: string;
+  display?: string;
 }): Promise<ScoreEntry | null> {
   try {
     return await store.submit({
@@ -191,6 +202,7 @@ export async function recordScore(args: {
       score: args.score,
       at: Date.now(),
       detail: args.detail,
+      display: args.display,
     });
   } catch {
     return null;

@@ -59,6 +59,13 @@ const zhCN: Messages = {
   minutesAgo: ' 分钟前',
   hoursAgo: ' 小时前',
   daysAgo: ' 天前',
+  backToGames: '← 游戏区',
+
+  viewBoard: '排行榜',
+  playAgain: '再玩一次',
+  finalTime: '用时',
+  gameOver: '游戏结束',
+  youWin: '过关了!',
 };
 
 export default zhCN;

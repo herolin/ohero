@@ -3,11 +3,12 @@ name: Deploy to GitHub Pages
 # Deploy host for the ohero site. Publishes:
 #   /                       -> official site placeholder (ohero-site/index.html)
 #   /games/                 -> game menu (ohero-site/games-index.html)
-#   /games/g001-bomb/       -> single-player build (ohero "stable" branch)
-#   /games/g002-bomb-mp/    -> multiplayer build (ohero "main" branch)
+#   /games/g001-bomb/       -> single-player build (same source, VITE_SINGLE_PLAYER=1)
+#   /games/g002-bomb-mp/    -> multiplayer build (same source, no flag)
 #
-# Both game builds come from the game1-bomb source (two branches) for now; see
-# DEPLOY.md for the target model where each game repo publishes its own dist.
+# Both minesweeper builds come from THIS branch, one flag apart; see DEPLOY.md
+# for the model the other games already follow, where each repo publishes its
+# own dist into games/.
 
 on:
   push:
@@ -28,8 +29,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # ---- Multiplayer build (this branch: main) -> /games/g002-bomb-mp/ ----
-      - name: Checkout mp (main)
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -38,6 +38,7 @@ jobs:
           node-version: 20
           cache: npm
 
+      # ---- Multiplayer build -> /games/g002-bomb-mp/ ----
       - name: Build multiplayer version
         run: |
           npm ci
@@ -45,20 +46,19 @@ jobs:
           mkdir -p site/games/g002-bomb-mp
           cp -r dist/. site/games/g002-bomb-mp/
 
-      # ---- Single-player build (stable branch) -> /games/g001-bomb/ ----
-      - name: Checkout single-player (stable)
-        uses: actions/checkout@v4
-        with:
-          ref: stable
-          path: stable
-
+      # ---- Single-player build -> /games/g001-bomb/ ----
+      #
+      # SAME COMMIT, one flag different. This used to check out a `stable`
+      # branch, and that branch silently fell far behind — it never received
+      # the score board, the player name or the start screen, because nobody
+      # opens a branch they aren't working on. A build flag cannot drift.
       - name: Build single-player version
+        env:
+          VITE_SINGLE_PLAYER: '1'
         run: |
-          cd stable
-          npm ci
           npm run build
-          mkdir -p ../site/games/g001-bomb
-          cp -r dist/. ../site/games/g001-bomb/
+          mkdir -p site/games/g001-bomb
+          cp -r dist/. site/games/g001-bomb/
 
       # ---- Games published by their own repos (committed under games/) ----
       - name: Include externally-published games
