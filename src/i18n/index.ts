@@ -73,6 +73,8 @@ export interface Messages {
   finalTime: string;
   gameOver: string;
   youWin: string;
+  scanHint: string;
+  qrUnavailable: string;
 }
 
 export type Locale = 'en' | 'zh-TW' | 'zh-CN';

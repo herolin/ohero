@@ -12,6 +12,7 @@ import {
   shareLinkForRoom,
   setRoomInLocation,
 } from '../multiplayer/room';
+import { drawQr, encodeQr } from './qrcode';
 import { t, onLocaleChange } from '../i18n';
 
 export interface StartInfo {
@@ -160,6 +161,10 @@ export class Lobby {
         <button class="copy-btn" type="button"></button>
       </div>
       <button class="primary share-btn" type="button" hidden></button>
+      <figure class="share-qr">
+        <canvas class="qr"></canvas>
+        <figcaption class="qr-hint"></figcaption>
+      </figure>
       <p class="status waiting"></p>
     `;
     this.query<HTMLElement>('.hint').textContent = t('shareHint');
@@ -189,7 +194,32 @@ export class Lobby {
       });
     }
 
+    this.showQr(link);
+
     this.query<HTMLElement>('.status').textContent = t('waitingOpponent');
+  }
+
+  /**
+   * The room link as a QR code.
+   *
+   * Two people in the same room is the common case, and typing a link with a
+   * random room ID off someone else's screen is miserable. It keeps a white
+   * plate of its own inside the dark palette on purpose — a code inverted
+   * against a dark page is the most common way to ship one that half the
+   * readers on the market will not scan.
+   */
+  private showQr(link: string): void {
+    const figure = this.query<HTMLElement>('.share-qr');
+    const hint = this.query<HTMLElement>('.qr-hint');
+    try {
+      drawQr(this.query<HTMLCanvasElement>('.qr'), encodeQr(link), { scale: 4, quiet: 4 });
+      hint.textContent = t('scanHint');
+    } catch {
+      // A link too long for a version-10 symbol. Cannot happen with the room
+      // IDs this game generates, but the copy button is still right there.
+      figure.classList.add('qr-failed');
+      hint.textContent = t('qrUnavailable');
+    }
   }
 
   private renderHostReady(): void {

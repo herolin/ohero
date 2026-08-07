@@ -66,6 +66,9 @@ const en: Messages = {
   finalTime: 'Time',
   gameOver: 'Game over',
   youWin: 'You win!',
+
+  scanHint: 'Or point their camera at this',
+  qrUnavailable: 'Link is too long for a code — copy it instead.',
 };
 
 export default en;

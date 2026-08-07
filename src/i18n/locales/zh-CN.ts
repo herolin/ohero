@@ -66,6 +66,9 @@ const zhCN: Messages = {
   finalTime: '用时',
   gameOver: '游戏结束',
   youWin: '过关了!',
+
+  scanHint: '或用对方的相机扫这个',
+  qrUnavailable: '链接太长无法生成条码,请改用复制链接。',
 };
 
 export default zhCN;

@@ -66,6 +66,9 @@ const zhTW: Messages = {
   finalTime: '用時',
   gameOver: '遊戲結束',
   youWin: '過關了!',
+
+  scanHint: '或用對方的相機掃這個',
+  qrUnavailable: '連結太長無法產生條碼,請改用複製連結。',
 };
 
 export default zhTW;

@@ -841,3 +841,37 @@ body {
   background: var(--accent);
   color: #fff;
 }
+
+
+/*
+ * The share code. The white plate is explicit rather than inherited: this game
+ * follows the system light/dark preference, so on a dark device the code would
+ * otherwise sit inverted against a dark page — the most common way to ship a
+ * QR that half the readers on the market will not scan.
+ */
+.share-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.4rem 0 0;
+}
+
+.share-qr .qr {
+  /* Whole pixels only: a resampled QR code loses the edges a reader looks for. */
+  image-rendering: pixelated;
+  background: #fff;
+  border-radius: 6px;
+  max-width: min(58vw, 210px);
+  height: auto;
+}
+
+.share-qr.qr-failed .qr {
+  display: none;
+}
+
+.qr-hint {
+  font-size: 0.75rem;
+  opacity: 0.72;
+  text-align: center;
+}
