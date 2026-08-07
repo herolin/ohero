@@ -84,8 +84,14 @@ src/ui/
    `signIn({ id, name })`。
 4. 新增 `src/platform/cloudScores.ts` 實作 `ScoreStore`(`kind = 'cloud'`),
    在啟動時呼叫一次 `useScoreStore(new CloudScoreStore())`。
-5. Firestore 安全規則:分數**只能新增、不能修改或刪除**,且 `playerId` 必須等於
-   登入者的 uid。未登入的來賓分數只留在本機,不上傳。
+5. Firestore 安全規則:見 `firestore.rules`(規則已寫好,直接貼進主控台)。
+   分數**只能新增、不能修改或刪除**,且 `playerId` 必須等於登入者的 uid。
+
+**來賓的分數也上傳(已定案)**,所以主控台要**多開一個匿名登入**
+(Authentication → Sign-in method → Anonymous)。來賓沒有帳號就沒有 uid,而
+`playerId == request.auth.uid` 是規則裡唯一擋得住別人亂寫的判準;匿名登入讓來賓
+也拿到一個真的 uid,規則就不必開出「未登入也能寫」這條路——那條路等於把資料庫
+公開給任何拿到網址的人。使用者完全無感,不會跳任何視窗。
 
 第 4 步以外**沒有任何檔案要改**,`kind` 一變成 `'cloud'`,排行榜下方的說明文字
 會自己改成「共用排行榜」。

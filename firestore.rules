@@ -1,0 +1,98 @@
+rules_version = '2';
+
+// Firestore rules for the shared ohero score board.
+//
+// THE THREAT MODEL, stated plainly: the web config is public — it is meant to
+// be, it ships inside the JavaScript — so anyone can point a script at this
+// database. These rules are the only thing standing between the board and a
+// stranger with ten minutes. They are NOT anti-cheat: a determined player can
+// still submit a score they did not earn, because the score is computed in
+// their own browser. That is the accepted trade for a static site with no
+// server of our own (PLATFORM.md §4). What the rules do prevent is the cheap,
+// bulk damage: wiping the board, editing someone else's row, filing under
+// another player's name, and flooding it with junk documents.
+//
+// GUESTS UPLOAD TOO, which is why anonymous auth has to be switched on in the
+// console. A guest still gets a real uid, so `playerId == request.auth.uid`
+// holds for everyone and there is never an unauthenticated write path. The
+// alternative — allowing writes with no auth at all — is a board that will not
+// survive contact with the internet.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // The document ID is the score's own id, so `id` is deliberately NOT one
+    // of the stored fields; `hasOnly` below rejects it. The cloud store has to
+    // write the entry without it.
+    match /scores/{scoreId} {
+      // The board is public. That is the point of it.
+      allow read: if true;
+
+      // Append-only. A score is a historical fact: once filed it is never
+      // edited and never withdrawn, not even by the person who set it. This
+      // one pair of lines is what makes wiping the board impossible.
+      allow create: if isValidScore(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    // Anything not named above is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidScore(d) {
+      return
+        // Signed in — Google or anonymous, both give a uid.
+        request.auth != null
+
+        // You may only file scores as yourself. Without this one line, a
+        // script can put any name it likes at the top of the board.
+        && d.playerId == request.auth.uid
+
+        // Exactly the fields the client writes, no more. An open shape lets
+        // someone use the board as free file storage.
+        && d.keys().hasOnly(
+             ['game', 'playerId', 'playerName', 'playerKind', 'score', 'at', 'detail', 'display'])
+        && d.keys().hasAll(['game', 'playerId', 'playerName', 'playerKind', 'score', 'at'])
+
+        // The slug decides which board a score lands on, so it is a closed
+        // list rather than any string: a typo would otherwise create a
+        // seventh, invisible game that nobody ever looks at.
+        && d.game in
+             ['g001-bomb', 'g002-bomb-mp', 'g003-snake', 'g004-tank', 'g005-pacman', 'g006-towerout']
+
+        && d.playerKind in ['guest', 'google']
+
+        // Names appear on other people's screens. The client renders them as
+        // text and never as markup, so this is about layout rather than XSS:
+        // a 10,000-character name would wreck the board for everyone reading
+        // it. 16 is the same cap the name field enforces.
+        && d.playerName is string
+        && d.playerName.size() > 0
+        && d.playerName.size() <= 16
+
+        && d.score is number
+        && d.score >= 0
+        // A ceiling far above any real run. Not a cheat check — it stops one
+        // absurd value pinning itself to the top of a board permanently.
+        && d.score <= 10000000
+
+        // Timestamps come from the client's clock, so they are checked against
+        // the server's. A backdated row could bury itself below the "recent"
+        // tab; a future-dated one could sit at the top of it for years. Five
+        // minutes of slack for devices whose clock is genuinely wrong.
+        && d.at is number
+        && d.at >= request.time.toMillis() - 300000
+        && d.at <= request.time.toMillis() + 300000
+
+        // Optional, and capped for the same layout reason as the name.
+        && (!('detail' in d) || (d.detail is string && d.detail.size() <= 64))
+        && (!('display' in d) || (d.display is string && d.display.size() <= 16));
+    }
+  }
+}
+
+// KNOWN LIMIT: rules cannot rate-limit. Someone patient can still add one row
+// at a time, forever. If that ever actually happens the fix is a scheduled
+// function that trims each player to their best N, not a stricter rule here —
+// and it is not worth building before it is a real problem.
