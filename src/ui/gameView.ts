@@ -15,6 +15,7 @@ import { onLocaleChange, t } from '../i18n';
 import { GAME_SLUG } from '../platform/game';
 import { getPlayer } from '../platform/identity';
 import { recordScore } from '../platform/scores';
+import { maybeShowInterstitial, recordPlay } from '../platform/ads';
 import { winScore } from '../game/score';
 import type { StartSettings } from './startScreen';
 
@@ -22,6 +23,8 @@ export class GameView {
   private game: Game;
   /** Guard so one won game files one score, however often render() runs. */
   private recorded = false;
+  /** Guard for the ad counter, which unlike the board counts losses too. */
+  private counted = false;
   private elapsed = 0;
   private timerId: number | null = null;
   private readonly settings: StartSettings;
@@ -73,7 +76,9 @@ export class GameView {
 
     this.resetBtn.addEventListener('click', () => this.newGame());
     this.must<HTMLButtonElement>('.to-start').addEventListener('click', () => this.onBackToStart());
-    this.must<HTMLButtonElement>('.over-again').addEventListener('click', () => this.newGame());
+    this.must<HTMLButtonElement>('.over-again').addEventListener('click', () => {
+      void this.playAgain();
+    });
     this.must<HTMLButtonElement>('.over-board').addEventListener('click', () => this.onBackToStart());
 
     bindBoardInput(this.grid, {
@@ -130,6 +135,7 @@ export class GameView {
     this.stopTimer();
     this.elapsed = 0;
     this.recorded = false;
+    this.counted = false;
     this.render();
   }
 
@@ -180,6 +186,25 @@ export class GameView {
     const over = this.game.status === 'won' || this.game.status === 'lost';
     this.must<HTMLElement>('.overlay.gameover').classList.toggle('hidden', !over);
     if (over) this.applyOverlayTexts();
+    // Losing is still a game played, so this counts both — unlike the board,
+    // which only records wins. render() runs on every reveal, hence the guard.
+    if (over && !this.counted) {
+      this.counted = true;
+      recordPlay(GAME_SLUG);
+    }
+  }
+
+  /**
+   * Start another game, with an ad in front of it if one is due.
+   *
+   * Awaited, so the break finishes before the next board appears rather than
+   * landing on top of one already in play. `maybeShowInterstitial` returns
+   * immediately when ads are unconfigured or blocked, and gives up on one that
+   * hangs — this button always ends up starting a game.
+   */
+  private async playAgain(): Promise<void> {
+    await maybeShowInterstitial(GAME_SLUG);
+    this.newGame();
   }
 
   /**
