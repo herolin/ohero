@@ -93,6 +93,7 @@ ohero/
 | `/ohero/games/g005-pacman/` | 迷宮大胃王(單機 + 對戰) | `herolin/g005-pacman` | B |
 | `/ohero/games/g006-towerout/` | 高樓逃生(單機 + 連線對戰) | `herolin/g006-towerout` | B |
 | `/ohero/games/g007-linematcher/` | 氣球連線(單機 + 連線對戰) | `herolin/g007-linematcher` | B |
+| `/ohero/games/g008-snackmatch/` | 速食消消樂(單機) | `herolin/g008` | B |
 
 - **A′(過渡)**:兩個踩地雷版本源自同一個 `game1-bomb` repo 的兩個分支,由 ohero 的
   `pages.yml` **直接 build** 進 `site/games/<slug>/`。這是歷史遺留,不建議沿用。
