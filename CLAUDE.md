@@ -226,5 +226,8 @@ npm test           # 執行 Vitest 單元測試
 - [x] `tests/views.test.ts`:真實 DOM 掛載開始頁與遊玩畫面
 
 **階段 7:測試與部署**
-- [ ] 雙裝置實測三模式、跨瀏覽器
-- [ ] GitHub Pages 靜態部署
+- [x] **GitHub Pages 靜態部署**(`.github/workflows/pages.yml`)—— 這一條本來還打勾沒打,
+      但 hub 從階段 8 起就一直是靠它發布的,每一次 push 都跑一次 deploy。
+- [ ] **雙裝置實測三模式、跨瀏覽器。** 這一條**只能由人來做**,不是待寫的程式:
+      對戰要兩台裝置各開一邊,而代理對 `herolin.github.io` 回 403(組織政策),
+      所以連線上頁面都打不開。Safari / Firefox 同理。
