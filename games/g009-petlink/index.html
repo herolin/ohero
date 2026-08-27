@@ -1,0 +1,42 @@
+<!doctype html>
+<!--
+  Pet Link — © 2026 herolin. All rights reserved.
+  Original: https://herolin.github.io/ohero/games/g009-petlink/
+  Not licensed for copying, redistribution or re-hosting.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="author" content="herolin" />
+    <meta name="copyright" content="© 2026 herolin. All rights reserved." />
+    <!--
+      `viewport-fit=cover` so the safe-area insets the stylesheet uses actually
+      resolve to something on a notched phone. `maximum-scale` is set because a
+      double-tap zoom on a board of small tiles is never what the player meant.
+    -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Pet Link</title>
+    <meta
+      name="description"
+      content="Pet pair-matching puzzle: link two matching pets with at most two turns, solo or racing a friend."
+    />
+    <!--
+      An inline SVG favicon, so the tab has an icon and the browser stops probing
+      /favicon.ico. A data URI rather than a file: it costs one line, needs no
+      asset in the build, and cannot 404 under a sub-path the way a rooted
+      /favicon.ico does when the game is served from /ohero/games/<slug>/.
+    -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23dc5a18'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle'%3E%F0%9F%90%B1%3C/text%3E%3C/svg%3E"
+    />
+    <script type="module" crossorigin src="./assets/index-IkJHx7gP.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Ufyj_c-6.css">
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
