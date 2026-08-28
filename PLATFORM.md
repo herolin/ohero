@@ -104,7 +104,7 @@ src/ui/
 
 ---
 
-## 5. 推廣狀況:**九個發布版本全部完成**
+## 5. 推廣狀況:**十個發布版本全部完成**
 
 | 發布路徑 | 來源 | `GAME_SLUG` | 分數是什麼 |
 |---|---|---|---|
@@ -117,6 +117,7 @@ src/ui/
 | `/games/g007-linematcher/` | `herolin/g007-linematcher` | `g007-linematcher` | 該局總分 |
 | `/games/g008-snackmatch/` | `herolin/g008` | `g008-snackmatch` | 該局總分 |
 | `/games/g009-petlink/` | `herolin/g009` | `g009-petlink` | 該局總分 |
+| `/games/g010-clawhaul/` | `herolin/g010` | `g010-clawhaul` | 整趟累計賺到的錢 |
 
 **踩地雷是唯一需要額外處理的**,兩件事:
 
