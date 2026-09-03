@@ -119,6 +119,7 @@ src/ui/
 | `/games/g009-petlink/` | `herolin/g009` | `g009-petlink` | 該局總分 |
 | `/games/g010-clawhaul/` | `herolin/g010` | `g010-clawhaul` | 整趟累計賺到的錢 |
 | `/games/g011-burgercraze/` | `herolin/g011` | `g011-burgercraze` | 整趟累計營業額 + 每過一班的獎金 |
+| `/games/g012-colorlines/` | `herolin/g012` | `g012-colorlines` | 單人一局的總分(雙人不上榜) |
 
 **踩地雷是唯一需要額外處理的**,兩件事:
 
