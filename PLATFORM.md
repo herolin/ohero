@@ -120,7 +120,7 @@ src/ui/
 | `/games/g010-clawhaul/` | `herolin/g010` | `g010-clawhaul` | 整趟累計賺到的錢 |
 | `/games/g011-burgercraze/` | `herolin/g011` | `g011-burgercraze` | 整趟累計營業額 + 每過一班的獎金 |
 | `/games/g012-colorlines/` | `herolin/g012` | `g012-colorlines` | 單人一局的總分(雙人不上榜) |
-| `/games/g013-dungeontd/` | `herolin/g013` | `g013-dungeontd` | 過關才上榜:關卡 > 核心剩餘 > 用時 |
+| `/games/g013-dungeontd/` | `herolin/g013` | `g013-dungeontd` | 過關才上榜:關卡 > 核心剩餘 > 用時;雙人只有贏才上榜 |
 
 **踩地雷是唯一需要額外處理的**,兩件事:
 
