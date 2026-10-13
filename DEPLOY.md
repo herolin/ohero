@@ -97,7 +97,7 @@ ohero/
 | `/ohero/games/g009-petlink/` | 寵物連連看(單機 + 連線對戰) | `herolin/g009` | B |
 | `/ohero/games/g010-clawhaul/` | 吊爪礦坑(單機 + 連線雙人合力) | `herolin/g010` | B |
 | `/ohero/games/g011-burgercraze/` | 極速漢堡店(單機) | `herolin/g011` | A |
-| `/ohero/games/g012-colorlines/` | 五色連線(單機 + 同機雙人搶分) | `herolin/g012` | A |
+| `/ohero/games/g012-colorlines/` | 五色連線(單機 + 同機雙人 + 連線雙人) | `herolin/g012` | A |
 | `/ohero/games/g013-dungeontd/` | 地城守護者(塔防 + 逆塔防 + 連線雙人) | `herolin/g013` | B |
 
 - **A′(過渡)**:兩個踩地雷版本源自同一個 `game1-bomb` repo 的兩個分支,由 ohero 的
