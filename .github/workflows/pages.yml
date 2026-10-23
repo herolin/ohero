@@ -74,6 +74,16 @@ jobs:
           cp ohero-site/index.html site/index.html
           cp ohero-site/games-index.html site/games/index.html
 
+      # ---- Is what is about to go live whole? ----
+      #
+      # The live site cannot be opened from the environments these games are
+      # built in, so a deploy that "succeeded" was the only evidence anyone
+      # had. This fails the deploy if a menu card leads nowhere, a game's page
+      # references a file that is not there, or anything loads from the domain
+      # root (which escapes /ohero/). No dependencies; see the file.
+      - name: Check the assembled site is whole
+        run: node tools/check-site.mjs site
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
